@@ -3,53 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실시간 동기화 엘리베이터 시뮬레이터</title>
+    <title>일체형 엘리베이터 버튼 시뮬레이터</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="floor-selector-box">
-        <label for="floor-picker">SET MY FLOOR</label>
-        <select id="floor-picker">
-            <option value="1">1F</option>
-            <option value="2">2F</option>
-            <option value="3">3F</option>
-            <option value="4" selected>4F</option>
-            <option value="5">5F</option>
-            <option value="6">6F</option>
-            <option value="7">7F</option>
-            <option value="8">8F</option>
-        </select>
-    </div>
-
-    <div class="elevator-panel">
-        <div class="screw top"></div>
+    <div class="simulator-wrapper">
         
-        <div class="black-screen">
-            <div class="led-arrow" id="display-arrow">─</div>
-            <div class="led-number" id="display-number">01</div>
-            
-            <div class="led-timer" id="display-timer">0.00초 뒤 뒤 도착</div>
-            
-            <div class="led-stop-floor" id="display-stop-floor"></div>
+        <div class="control-panel">
+            <div class="config-row">
+                <div class="input-box">
+                    <label>현재 엘리베이터 층</label>
+                    <select id="current-floor-select">
+                        <option value="1" selected>1층</option>
+                        <option value="2">2층</option>
+                        <option value="3">3층</option>
+                        <option value="4">4층</option>
+                        <option value="5">5층</option>
+                        <option value="6">6층</option>
+                        <option value="7">7층</option>
+                        <option value="8">8층</option>
+                    </select>
+                </div>
+                <div class="input-box">
+                    <label>내가 있는 층</label>
+                    <select id="my-floor-select">
+                        <option value="1">1층</option>
+                        <option value="2">2층</option>
+                        <option value="3">3층</option>
+                        <option value="4" selected>4층</option>
+                        <option value="5">5층</option>
+                        <option value="6">6층</option>
+                        <option value="7">7층</option>
+                        <option value="8">8층</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="multi-floor-card">
+                <h4>정차 예정층 다중 선택</h4>
+                <div class="floor-grid">
+                    <button class="grid-floor-btn" data-floor="1">1층</button>
+                    <button class="grid-floor-btn" data-floor="2">2층</button>
+                    <button class="grid-floor-btn" data-floor="3">3층</button>
+                    <button class="grid-floor-btn" data-floor="4">4층</button>
+                    <button class="grid-floor-btn" data-floor="5">5층</button>
+                    <button class="grid-floor-btn" data-floor="6">6층</button>
+                    <button class="grid-floor-btn" data-floor="7">7층</button>
+                    <button class="grid-floor-btn" data-floor="8">8층</button>
+                </div>
+                <div class="control-btns">
+                    <button id="start-btn">엘리베이터 호출 (운행)</button>
+                    <button id="reset-btn">선택 초기화</button>
+                </div>
+            </div>
         </div>
 
-        <div class="button-set">
-            <button id="btn-up" class="elevator-physical-btn" aria-label="Up">
-                <div class="btn-inner">
-                    <svg viewBox="0 0 100 100"><polygon points="50,25 85,75 15,75"/></svg>
-                </div>
-            </button>
-            <button id="btn-down" class="elevator-physical-btn" aria-label="Down">
-                <div class="btn-inner">
-                    <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,75"/></svg>
-                </div>
-            </button>
+        <div class="hardware-panel">
+            <div class="panel-screw pin-top"></div>
+            
+            <div class="led-display-zone">
+                <div class="arrow-led" id="arrow-display">↑</div>
+                <div class="floor-led" id="floor-display">12</div>
+                
+                <div class="countdown-led" id="countdown-display"></div>
+            </div>
+
+            <div class="physical-button-area">
+                <button id="hw-up-btn" class="hw-action-btn" aria-label="Up">
+                    <div class="hw-inner-plate">
+                        <svg viewBox="0 0 100 100"><polygon points="50,20 85,75 15,75"/></svg>
+                    </div>
+                </button>
+                <button id="hw-down-btn" class="hw-action-btn" aria-label="Down">
+                    <div class="hw-inner-plate">
+                        <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,80"/></svg>
+                    </div>
+                </button>
+            </div>
+
+            <div class="panel-screw pin-bottom"></div>
         </div>
 
-        <div class="screw bottom"></div>
     </div>
 
-    <script src="script.js"></script>
 </body>
 </html>
