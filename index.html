@@ -1,90 +1,65 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>엘리베이터 도착 예정 시간</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8층 엘리베이터 시스템</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="wrapper">
-
-  <!-- 왼쪽 입력 화면 -->
-  <section class="control-section">
-
-    <div class="select-row">
-      <label>
-        현재 엘리베이터 층
-        <select id="currentFloor">
-          <option value="1">1층</option>
-          <option value="2">2층</option>
-          <option value="3">3층</option>
-          <option value="4" selected>4층</option>
-          <option value="5">5층</option>
-          <option value="6">6층</option>
-          <option value="7">7층</option>
-          <option value="8">8층</option>
+    <div id="current-floor-board">
+        <span class="board-label">CURRENT FLOOR</span>
+        <select id="floor-picker">
+            <option value="1">1F</option>
+            <option value="2">2F</option>
+            <option value="3">3F</option>
+            <option value="4" selected>4F</option>
+            <option value="5">5F</option>
+            <option value="6">6F</option>
+            <option value="7">7F</option>
+            <option value="8">8F</option>
         </select>
-      </label>
 
-      <label>
-        내가 있는 층
-        <select id="targetFloor">
-          <option value="1">1층</option>
-          <option value="2">2층</option>
-          <option value="3">3층</option>
-          <option value="4">4층</option>
-          <option value="5">5층</option>
-          <option value="6">6층</option>
-          <option value="7">7층</option>
-          <option value="8" selected>8층</option>
-        </select>
-      </label>
+        <span class="board-label" style="margin-top: 15px; margin-bottom: 8px;">STOPS (정차층 선택)</span>
+        <div id="stop-floors-picker">
+            <label><input type="checkbox" value="1"> 1F</label>
+            <label><input type="checkbox" value="2"> 2F</label>
+            <label><input type="checkbox" value="3"> 3F</label>
+            <label><input type="checkbox" value="4"> 4F</label>
+            <label><input type="checkbox" value="5"> 5F</label>
+            <label><input type="checkbox" value="6"> 6F</label>
+            <label><input type="checkbox" value="7"> 7F</label>
+            <label><input type="checkbox" value="8"> 8F</label>
+        </div>
     </div>
-
-    <div class="stop-card">
-      <h3>정차 예정층 다중 선택</h3>
-      <div id="stopButtons" class="floor-grid"></div>
-
-      <div class="action-row">
-        <button id="callBtn" class="call-main">엘리베이터 호출</button>
-        <button id="resetBtn" class="reset-btn">선택 초기화</button>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- 오른쪽 엘리베이터 화면 -->
-  <section class="elevator-section">
 
     <div class="elevator-panel">
-
-      <div class="screw top"></div>
-
-      <div class="screen">
-        <div id="direction" class="direction">↑</div>
-        <div id="floorDisplay" class="floor-display">04</div>
-
-        <div id="arrivalTime" class="arrival-time">
-          17.57초 뒤<br>도착
+        <div class="screw top"></div>
+        
+        <div class="black-screen">
+            <div class="led-arrow" id="display-arrow">─</div>
+            <div class="led-number" id="display-number">01</div>
+            <div class="led-timer" id="display-timer"></div>
+            <div class="led-stops" id="display-stops"></div>
         </div>
 
-        <div id="stopInfo" class="stop-info">
-          예정 정차층: 없음
+        <div class="button-set">
+            <button id="btn-up" class="elevator-physical-btn" aria-label="Up">
+                <div class="btn-inner">
+                    <svg viewBox="0 0 100 100"><polygon points="50,25 85,75 15,75"/></svg>
+                </div>
+            </button>
+            <button id="btn-down" class="elevator-physical-btn" aria-label="Down">
+                <div class="btn-inner">
+                    <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,75"/></svg>
+                </div>
+            </button>
         </div>
-      </div>
 
-      <button id="upBtn" class="elevator-btn">▲</button>
-      <button id="downBtn" class="elevator-btn">▼</button>
-
-      <div class="screw bottom"></div>
-
+        <div class="screw bottom"></div>
     </div>
 
-  </section>
-
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
