@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프리미엄 하이브리드 엘리베이터 제어 시스템</title>
+    <title>프리미엄 하이브리드 엘리베이터 시스템</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -52,17 +52,17 @@
                 </div>
 
                 <div class="status-display-box">
-                    <div class="status-title">운행 및 정차 예정 정보</div>
+                    <div class="status-title">운행 상태 모니터링</div>
                     <div class="status-row">
-                        <span class="status-label">타겟 정차층:</span>
+                        <span class="status-label">타겟 정차예정층:</span>
                         <span id="stat-target-floor" class="status-value">-</span>
                     </div>
                     <div class="status-row">
-                        <span class="status-label">남은 소요시간:</span>
+                        <span class="status-label">남은 주행시간:</span>
                         <span id="stat-remaining-time" class="status-value highlight">0.00초</span>
                     </div>
                     <div class="status-row">
-                        <span class="status-label">현재 시스템 상태:</span>
+                        <span class="status-label">현재 상태:</span>
                         <span id="stat-message" class="status-msg">대기 중</span>
                     </div>
                 </div>
@@ -77,8 +77,10 @@
                 <div class="black-screen">
                     <div class="led-arrow" id="display-arrow">─</div>
                     <div class="led-number" id="display-number">01</div>
+                    
                     <div class="led-timer" id="display-timer"></div>
-                    <div class="led-stop-floor" id="display-stop-floor">NEXT: --F</div>
+                    
+                    <div class="led-stop-floor" id="display-stop-floor"></div>
                 </div>
 
                 <div class="button-set">
