@@ -1,121 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>엘리베이터 도착 예정시간 프로토타입</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프리미엄 하이브리드 엘리베이터 제어 시스템</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<main class="app">
+    <div class="split-container">
+        
+        <div class="left-control-panel">
+            <div class="dashboard-card">
+                <h2>ELEVATOR CONTROL DASHBOARD</h2>
+                <hr class="dash-divider">
+                
+                <div class="input-group">
+                    <label for="floor-picker">내 현재 위치 (CURRENT FLOOR)</label>
+                    <select id="floor-picker">
+                        <option value="1">1F</option>
+                        <option value="2">2F</option>
+                        <option value="3">3F</option>
+                        <option value="4" selected>4F</option>
+                        <option value="5">5F</option>
+                        <option value="6">6F</option>
+                        <option value="7">7F</option>
+                        <option value="8">8F</option>
+                    </select>
+                </div>
 
-  <!-- 왼쪽 영역 -->
-  <section class="control-card">
+                <div class="input-group">
+                    <label for="target-picker">목적지 (예상 정차층 입력)</label>
+                    <select id="target-picker">
+                        <option value="1">1F</option>
+                        <option value="2">2F</option>
+                        <option value="3">3F</option>
+                        <option value="4">4F</option>
+                        <option value="5" selected>5F</option>
+                        <option value="6">6F</option>
+                        <option value="7">7F</option>
+                        <option value="8">8F</option>
+                    </select>
+                </div>
 
-    <div class="title-area">
-      <span class="badge">PROTOTYPE</span>
-      <h1>예상 정차층 입력</h1>
-      <p>
-        정차 예정층과 문닫힘 버튼 여부를 반영하여
-        도착 시간을 계산합니다.
-      </p>
-    </div>
+                <div class="input-group close-btn-wrapper">
+                    <label class="switch-label">
+                        <input type="checkbox" id="close-button-clicked">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="switch-text">닫힘 버튼 바로 누름 (시간 단축 적용)</span>
+                </div>
 
-    <div class="input-grid">
-
-      <label>
-        현재 엘리베이터 층
-        <select id="currentFloor"></select>
-      </label>
-
-      <label>
-        내가 있는 층
-        <select id="myFloor"></select>
-      </label>
-
-    </div>
-
-    <div class="stop-box">
-
-      <div class="section-title">
-        정차 예정층 선택
-      </div>
-
-      <div id="stopFloors" class="floor-buttons"></div>
-
-    </div>
-
-    <label class="close-row">
-      <input type="checkbox" id="doorClose">
-      <span>문닫힘 버튼을 바로 누름</span>
-    </label>
-
-    <div class="result-box">
-
-      <div>
-        <span>예상 정차층</span>
-        <strong id="stopResult">없음</strong>
-      </div>
-
-      <div>
-        <span>예상 도착시간</span>
-        <strong id="timeResult">대기 중</strong>
-      </div>
-
-    </div>
-
-    <button class="reset-btn" id="resetBtn">
-      초기화
-    </button>
-
-  </section>
-
-  <!-- 오른쪽 영역 -->
-  <section class="preview-card">
-
-    <div class="elevator-panel">
-
-      <div class="screw top"></div>
-
-      <div class="screen">
-
-        <div id="directionIcon" class="direction">
-          ▲
+                <div class="status-display-box">
+                    <div class="status-title">운행 및 정차 예정 정보</div>
+                    <div class="status-row">
+                        <span class="status-label">타겟 정차층:</span>
+                        <span id="stat-target-floor" class="status-value">-</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">남은 소요시간:</span>
+                        <span id="stat-remaining-time" class="status-value highlight">0.00초</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">현재 시스템 상태:</span>
+                        <span id="stat-message" class="status-msg">대기 중</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="floorDisplay" class="floor-display">
-          1
+        <div class="right-hardware-panel">
+            
+            <div class="elevator-panel">
+                <div class="screw top"></div>
+                
+                <div class="black-screen">
+                    <div class="led-arrow" id="display-arrow">─</div>
+                    <div class="led-number" id="display-number">01</div>
+                    <div class="led-timer" id="display-timer"></div>
+                    <div class="led-stop-floor" id="display-stop-floor">NEXT: --F</div>
+                </div>
+
+                <div class="button-set">
+                    <button id="btn-up" class="elevator-physical-btn" aria-label="Up">
+                        <div class="btn-inner">
+                            <svg viewBox="0 0 100 100"><polygon points="50,25 85,75 15,75"/></svg>
+                        </div>
+                    </button>
+                    <button id="btn-down" class="elevator-physical-btn" aria-label="Down">
+                        <div class="btn-inner">
+                            <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,75"/></svg>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="screw bottom"></div>
+            </div>
+
         </div>
-
-        <div id="etaDisplay" class="eta-display">
-          대기 중
-        </div>
-
-      </div>
-
-      <button class="call-btn" id="upBtn">
-        ▲
-      </button>
-
-      <button class="call-btn" id="downBtn">
-        ▼
-      </button>
-
-      <div class="screw bottom"></div>
 
     </div>
 
-    <p class="caption">
-      버튼을 누르면 오른쪽 화면의 숫자가 실제
-      엘리베이터처럼 이동합니다.
-    </p>
-
-  </section>
-
-</main>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
