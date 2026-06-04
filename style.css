@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700&display=swap');
 
-/* 기본 레이아웃 초기화 */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -9,7 +8,7 @@
 
 body {
     background-color: #0b0f19;
-    font-family: 'Inter', 'Malgun Gothic', sans-serif;
+    font-family: 'Inter', sans-serif;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -17,413 +16,257 @@ body {
     color: #f8fafc;
 }
 
-/* 대시보드 본체 팩 */
-.dashboard-container {
+.elevator-simulator-container {
     display: flex;
-    align-items: stretch;
     gap: 40px;
-    padding: 35px;
+    padding: 30px;
     background: #111827;
-    border-radius: 28px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
     border: 1px solid #1e293b;
 }
 
-/* ---------------------------------------------------------------- */
-/* LEFT SIDE: 다크 관제 패널 디자인 */
-/* ---------------------------------------------------------------- */
-.left-station {
-    width: 500px;
+/* 왼쪽 샤프트 뷰 */
+.elevator-shaft-view {
+    width: 320px;
+    background-color: #0f172a;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #334155;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 15px;
 }
 
-.main-card {
-    background-color: #1e293b;
-    border-radius: 20px;
-    padding: 28px;
-    border: 1px solid #334155;
-}
-
-.badge {
-    background-color: #38bdf8;
-    color: #0f172a;
+.shaft-header {
     font-size: 0.75rem;
     font-weight: 800;
-    padding: 5px 12px;
-    border-radius: 9999px;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    margin-bottom: 14px;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    text-align: center;
 }
 
-.main-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #f8fafc;
-    margin-bottom: 6px;
-}
-
-.main-desc {
-    color: #94a3b8;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-
-.dropdown-group {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.select-box {
-    flex: 1;
+.shaft-inside {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    background-color: #020617;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
 
-.select-box label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #cbd5e1;
-}
-
-.select-box select {
-    width: 100%;
-    padding: 12px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: 1px solid #475569;
-    border-radius: 10px;
-    background-color: #0f172a;
-    color: #f8fafc;
-    outline: none;
-    cursor: pointer;
-}
-
-.select-box select:focus {
-    border-color: #ff5500;
-}
-
-/* 정차층 다중선택 칩리스트 */
-.floor-selection-zone {
-    margin-bottom: 20px;
-}
-
-.floor-selection-zone h3 {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #cbd5e1;
-    margin-bottom: 10px;
-}
-
-.floor-btn-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.floor-chip {
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    padding: 12px 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #94a3b8;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.floor-chip:hover {
-    background-color: #273549;
-    color: #f8fafc;
-}
-
-/* 활성화 시 세련된 오렌지 LED 반사광 효과 */
-.floor-chip.active-target {
-    background-color: #ff5500 !important;
-    border-color: #ff5500 !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 15px rgba(255, 85, 0, 0.4);
-}
-
-/* 커스텀 체크박스 */
-.custom-checkbox-container {
+.shaft-floor-line {
+    flex: 1;
+    border-bottom: 1px dashed rgba(51, 65, 85, 0.3);
+    position: relative;
     display: flex;
     align-items: center;
-    position: relative;
-    padding-left: 28px;
-    margin-bottom: 22px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #cbd5e1;
-    user-select: none;
+    padding-left: 15px;
 }
 
-.custom-checkbox-container input {
+.shaft-floor-line span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+/* 실제 움직이는 엘리베이터 카 */
+.elevator-car {
     position: absolute;
-    opacity: 0;
-    cursor: pointer;
+    left: 90px;
+    bottom: 0px; 
+    width: 140px;
+    height: 60px; 
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    border: 2px solid #38bdf8;
+    border-radius: 6px;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    transition: bottom 0.1s linear;
 }
 
-.checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 18px;
-    width: 18px;
-    background-color: #0f172a;
-    border: 1px solid #475569;
-    border-radius: 5px;
+.car-door-left, .car-door-right {
+    width: 35px;
+    height: 90%;
+    background-color: #475569;
+    border: 1px solid #64748b;
+    border-radius: 3px;
 }
 
-.custom-checkbox-container input:checked ~ .checkmark {
-    background-color: #ff5500;
-    border-color: #ff5500;
+.car-display {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    color: #ff5500;
+    font-weight: 900;
+    background-color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-    left: 5px;
-    top: 1px;
-    width: 4px;
-    height: 9px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.custom-checkbox-container input:checked ~ .checkmark:after {
-    display: block;
-}
-
-/* 하단 액션 컨트롤 버튼 */
-.action-btn-row {
+.status-ticker {
     display: flex;
     gap: 10px;
 }
 
-#cta-start-btn {
-    flex: 3;
-    background-color: #ff5500;
-    color: #ffffff;
-    border: none;
-    padding: 14px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(255, 85, 0, 0.2);
-}
-
-#cta-start-btn:hover { background-color: #ff6a1a; }
-
-#cta-reset-btn {
-    flex: 1;
-    background-color: #0f172a;
-    color: #94a3b8;
-    border: 1px solid #334155;
-    padding: 14px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-#cta-reset-btn:hover { background-color: #1e293b; color: #fff; }
-
-/* 상태 모니터 위젯 */
-.info-widget-row {
-    display: flex;
-    gap: 10px;
-}
-
-.widget-card {
+.ticker-box {
     flex: 1;
     background-color: #1e293b;
     border: 1px solid #334155;
-    border-radius: 14px;
-    padding: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
 }
 
-.widget-card.highlight-orange {
-    border-color: #ff5500;
-    background-color: #241612;
-}
-
-.widget-label {
-    font-size: 0.7rem;
-    font-weight: 700;
+.ticker-label {
+    display: block;
+    font-size: 0.65rem;
     color: #64748b;
+    font-weight: 700;
     margin-bottom: 4px;
-    text-transform: uppercase;
 }
 
-.highlight-orange .widget-label { color: #ff5500; }
-
-.widget-value {
-    font-size: 1.15rem;
+.ticker-value {
+    font-size: 0.95rem;
     font-weight: 700;
     color: #f8fafc;
 }
 
-.highlight-orange .widget-value { color: #ff5500; }
-.text-center { text-align: center; }
-
-/* ---------------------------------------------------------------- */
-/* RIGHT SIDE: 리얼 메탈 하드웨어 패널 디자인 */
-/* ---------------------------------------------------------------- */
-.right-panel-station {
-    display: flex;
-    align-items: stretch;
-}
-
-.metallic-panel {
+/* 오른쪽 내부 패널 */
+.elevator-inside-panel {
     background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-    width: 200px;
-    border-radius: 35px;
-    padding: 25px 14px;
+    width: 220px;
+    border-radius: 28px;
+    padding: 30px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
     box-shadow: 
         0 20px 50px rgba(0, 0, 0, 0.4),
-        inset 1.5px 1.5px 4px rgba(255, 255, 255, 1),
-        inset -1.5px -1.5px 4px rgba(0, 0, 0, 0.2);
+        inset 2px 2px 5px rgba(255, 255, 255, 1),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.2);
     border: 1px solid #cbd5e1;
 }
 
-.screw {
+.panel-screw {
     width: 6px;
     height: 6px;
-    background: radial-gradient(circle at 30% 30%, #ffffff, #64748b 80%);
+    background: radial-gradient(circle at 30% 30%, #fff, #64748b 80%);
     border-radius: 50%;
     position: absolute;
 }
+.top-left-screw { top: 12px; left: 14px; }
+.top-right-screw { top: 12px; right: 14px; }
+.bottom-left-screw { bottom: 12px; left: 14px; }
+.bottom-right-screw { bottom: 12px; right: 14px; }
 
-.screw::after {
-    content: '';
-    position: absolute;
-    top: 2.5px;
-    left: 0.5px;
-    width: 5px;
-    height: 1px;
-    background-color: #334155;
-}
-
-.top-screw { top: 12px; }
-.bottom-screw { bottom: 12px; }
-
-/* LED 매트릭스 디스플레이 섀시 */
-.cyber-led-screen {
+.panel-led-indicator {
     background-color: #050505;
     width: 100%;
-    height: 290px;
-    border-radius: 14px;
-    border: 2px solid #1e293b;
-    box-shadow: inset 0 6px 15px rgba(0, 0, 0, 0.95);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px 8px;
-}
-
-.led-arrow {
-    color: #ff2200;
-    font-size: 2rem;
-    font-weight: 900;
-    height: 28px;
-    line-height: 28px;
-    filter: drop-shadow(0 0 6px rgba(255, 34, 0, 0.9));
-}
-
-.led-floor {
-    font-family: 'Orbitron', monospace;
-    color: #ff2200;
-    font-size: 4.5rem;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -2px;
-    filter: drop-shadow(0 0 10px rgba(255, 34, 0, 0.95));
-    margin-bottom: auto;
-}
-
-.led-info-text-area {
-    width: 100%;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 10px;
-    border-top: 1px dashed rgba(255, 34, 0, 0.2);
-    padding-top: 10px;
-}
-
-.led-row-dynamic {
-    color: #ff2200;
-    font-size: 0.85rem;
-    font-weight: 700;
-    filter: drop-shadow(0 0 5px rgba(255, 34, 0, 0.8));
-    min-height: 18px;
-}
-
-.led-row-static {
-    color: #ff2200;
-    font-size: 0.8rem;
-    font-weight: 700;
-    filter: drop-shadow(0 0 4px rgba(255, 34, 0, 0.6));
-}
-
-/* 기계식 물리 버튼 플러그인 */
-.button-container-box {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: auto;
-}
-
-.hardware-trigger {
-    width: 76px;
-    height: 48px;
-    background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
-    border-radius: 10px;
-    border: 1px solid #94a3b8;
-    padding: 3px;
-    box-shadow: 0 3px 0 #64748b, 0 5px 10px rgba(0, 0, 0, 0.15), inset 0 1px 1px #fff;
-}
-
-.hw-reflection {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 40%, #cbd5e1 100%);
-    border-radius: 7px;
-    border: 1px solid #cbd5e1;
+    height: 80px;
+    border-radius: 12px;
+    border: 2px solid #475569;
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
 }
 
-/* 주행 연동 라이팅 발광 스위치 */
-.hardware-trigger.glowing .hw-reflection {
+.panel-arrow {
+    color: #ff2200;
+    font-size: 1.5rem;
+    font-weight: 900;
+    filter: drop-shadow(0 0 4px rgba(255, 34, 0, 0.8));
+}
+
+.panel-floor {
+    font-family: 'Orbitron', monospace;
+    color: #ff2200;
+    font-size: 2.5rem;
+    font-weight: 900;
+    filter: drop-shadow(0 0 8px rgba(255, 34, 0, 0.95));
+}
+
+.button-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 20px;
+    margin-bottom: 25px;
+}
+
+.elevator-inside-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
+    border: 2px solid #94a3b8;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #64748b, 0 5px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.1s ease;
+    outline: none;
+}
+
+.elevator-inside-btn:hover {
+    background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 100%);
+}
+
+/* 버튼 눌렸을 때 들어오는 오렌지색 조명 효과 */
+.elevator-inside-btn.button-pressed {
     background: linear-gradient(to bottom, #fff2eb 0%, #ffd0b3 100%);
     border-color: #ff5500;
+    color: #ff5500;
+    box-shadow: 0 2px 0 #b33c00, 0 3px 8px rgba(255, 85, 0, 0.3);
+    transform: translateY(2px);
 }
 
-.hardware-trigger svg {
-    width: 18px;
-    height: 18px;
-    fill: #94a3b8;
+.panel-util-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 25px;
 }
 
-.hardware-trigger.glowing svg {
-    fill: #ff5500;
-    filter: drop-shadow(0 0 5px rgba(255, 85, 0, 0.9));
+.util-btn {
+    width: 64px;
+    height: 38px;
+    background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #64748b;
 }
+
+.util-btn.active-util {
+    border-color: #ff5500;
+    color: #ff5500;
+    background: #fff2eb;
+}
+
+#system-start-trigger {
+    width: 100%;
+    background-color: #ff5500;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
+}
+
+#system-start-trigger:hover { background-color: #ff6a1a; }
+#system-start-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
