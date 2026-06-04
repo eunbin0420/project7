@@ -1,181 +1,224 @@
-// 제공받은 실제 엘리베이터 구동 정밀 물리 데이터 타임 테이블 반영
-const TIME_TABLE = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
+// 제공받은 정밀 물리 층간 스케줄 속도 데이터 테이블 바인딩
+const TIME_TABLE_DATA = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
 
-let state = {
+let appState = {
     currentFloor: 1,
-    queueTargets: [], // 다중 누적 선택된 정차 목적지 배열
-    isMoving: false,
-    timerClock: null,
-    moveClock: null
+    selectedQueue: [], // 다중 선택 목적지 스택 배열
+    isProcessing: false,
+    timerEngine: null,
+    floorStepEngine: null
 };
 
-// UI 컴포넌트 셀렉터 바인딩
-const elArrow = document.getElementById('arrow-display');
-const elFloor = document.getElementById('floor-display');
-const elCountdown = document.getElementById('countdown-display');
+// UI 컴포넌트 셀렉터 캐싱
+const screenArrow = document.getElementById('screen-arrow');
+const screenFloor = document.getElementById('screen-floor');
+const screenTimerMsg = document.getElementById('screen-timer-msg');
+const screenNextMsg = document.getElementById('screen-next-msg');
+
+const widgetTime = document.getElementById('widget-time');
+const widgetNextFloor = document.getElementById('widget-next-floor');
 
 const currentFloorSelect = document.getElementById('current-floor-select');
 const myFloorSelect = document.getElementById('my-floor-select');
-const gridFloorBtns = document.querySelectorAll('.grid-floor-btn');
-const startBtn = document.getElementById('start-btn');
-const resetBtn = document.getElementById('reset-btn');
+const doorCloseCheck = document.getElementById('door-close-chechbox');
+const floorChips = document.querySelectorAll('.floor-chip');
 
-const hwUpBtn = document.getElementById('hw-up-btn');
-const hwDownBtn = document.getElementById('hw-down-btn');
+const ctaStartBtn = document.getElementById('cta-start-btn');
+const ctaResetBtn = document.getElementById('cta-reset-btn');
+const hwBtnUp = document.getElementById('hw-btn-up');
+const hwBtnDown = document.getElementById('hw-btn-down');
 
-// 1. 다중 정차층 토글 선택 로직
-gridFloorBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (state.isMoving) return; // 운행 도중에는 조작 잠금
-        const targetNum = parseInt(btn.getAttribute('data-floor'));
-        
-        if (state.queueTargets.includes(targetNum)) {
-            state.queueTargets = state.queueTargets.filter(f => f !== targetNum);
-            btn.classList.remove('selected');
+
+// 1. 다중 정차층 토글 클릭 핸들러
+floorChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+        if (appState.isProcessing) return; // 주행 중 잠금
+        const floorNum = parseInt(chip.getAttribute('data-floor'));
+
+        if (appState.selectedQueue.includes(floorNum)) {
+            appState.selectedQueue = appState.selectedQueue.filter(f => f !== floorNum);
+            chip.classList.remove('active-target');
         } else {
-            state.queueTargets.push(targetNum);
-            btn.classList.add('selected');
+            appState.selectedQueue.push(floorNum);
+            chip.classList.add('active-target');
         }
+        updateWidgetsPreview();
     });
 });
 
-// 제어반 초기화
-resetBtn.addEventListener('click', () => {
-    if (state.isMoving) return;
-    state.queueTargets = [];
-    gridFloorBtns.forEach(btn => btn.classList.remove('selected'));
-    elCountdown.textContent = "";
-    elArrow.textContent = "─";
+// 2. 프리미엄 카드 대시보드 위젯 실시간 동기화
+function updateWidgetsPreview() {
+    if (appState.selectedQueue.length === 0) {
+        widgetNextFloor.textContent = "없음";
+        screenNextMsg.textContent = "정차 예정층: 없음";
+        widgetTime.textContent = "00.00초";
+        screenTimerMsg.textContent = "00.00초 뒤 도착";
+        return;
+    }
+    
+    // 예약층 가시화 정렬 정돈해서 표기
+    const displaySorted = [...appState.selectedQueue].sort((a,b) => a - b);
+    const resultText = displaySorted.map(f => `${f}층`).join(', ');
+    widgetNextFloor.textContent = resultText;
+    screenNextMsg.textContent = `정차 예정층: ${resultText}`;
+
+    // 누적 총 예상 시간 연산 프리뷰 반영
+    const baseStart = parseInt(currentFloorSelect.value);
+    let totalEstimated = 0;
+    let tempCurrent = baseStart;
+
+    // 현재 위치 기준 근접 정렬 스케줄 계산식 시뮬레이션
+    const tempQueue = [...appState.selectedQueue].sort((a, b) => Math.abs(a - tempCurrent) - Math.abs(b - tempCurrent));
+    
+    tempQueue.forEach(target => {
+        totalEstimated += Math.abs(TIME_TABLE_DATA[target] - TIME_TABLE_DATA[tempCurrent]);
+        // 문닫힘 옵션 미체크시 정차당 패널티 지연 타임 누적 반영 가산
+        if(!doorCloseCheck.checked) {
+            totalEstimated += 8.62; // 닫힘 미작동 보정 상수 가산 버퍼
+        }
+        tempCurrent = target;
+    });
+
+    widgetTime.textContent = `${totalEstimated.toFixed(2)}초`;
+    screenTimerMsg.textContent = `${totalEstimated.toFixed(2)}초 뒤 도착`;
+}
+
+// 셀렉트 및 옵션 체크 변경 시 즉시 프리뷰 리프레시 연동
+currentFloorSelect.addEventListener('change', () => {
+    appState.currentFloor = parseInt(currentFloorSelect.value);
+    screenFloor.textContent = String(appState.currentFloor).padStart(2, '0');
+    updateWidgetsPreview();
+});
+doorCloseCheck.addEventListener('change', updateWidgetsPreview);
+
+// 3. 컨트롤러 초기화 셋업 리셋
+ctaResetBtn.addEventListener('click', () => {
+    if (appState.isProcessing) return;
+    appState.selectedQueue = [];
+    floorChips.forEach(c => c.classList.remove('active-target'));
+    screenArrow.textContent = "─";
+    hwBtnUp.classList.remove('glowing');
+    hwBtnDown.classList.remove('glowing');
+    updateWidgetsPreview();
 });
 
-// 호출(운행) 버튼 트리거 시작점
-startBtn.addEventListener('click', () => {
-    if (state.isMoving) return;
-
-    // 현재 설정창의 층수를 시뮬레이터 최초 위치로 강제 동기화
-    state.currentFloor = parseInt(currentFloorSelect.value);
-    renderFloorDisplay(state.currentFloor);
-
-    if (state.queueTargets.length === 0) {
-        alert("이동할 정차 예정층을 우측 제어반에서 선택해 주세요!");
+// 4. 호출 트리거 작동 가동 시작
+ctaStartBtn.addEventListener('click', () => {
+    if (appState.isProcessing) return;
+    
+    appState.currentFloor = parseInt(currentFloorSelect.value);
+    if (appState.selectedQueue.length === 0) {
+        alert("이동 및 시뮬레이션할 정차 예정층을 선택해 주세요.");
         return;
     }
 
-    state.isMoving = true;
-    toggleInputControls(true);
+    appState.isProcessing = true;
+    toggleInputs(true);
 
-    // 최적화 정렬 (현재 층에서 가장 가까운 예정층 순으로 순차 순회 주행 처리)
-    state.queueTargets.sort((a, b) => Math.abs(a - state.currentFloor) - Math.abs(b - state.currentFloor));
-
-    dispatchNextFloor();
+    // 현재 층 기준 가장 최적화된 최단 정차지 큐 정렬 스위칭
+    appState.selectedQueue.sort((a, b) => Math.abs(a - appState.currentFloor) - Math.abs(b - appState.currentFloor));
+    
+    executeDriveEngine();
 });
 
-// 순차 멀티 플로어 주행 서브루틴 연출 엔진
-function dispatchNextFloor() {
-    if (state.queueTargets.length === 0) {
-        // 예약된 모든 멀티 정차지를 완수했을 경우 리셋 후 대기
-        state.isMoving = false;
-        toggleInputControls(false);
-        elArrow.textContent = "─";
-        hwUpBtn.classList.remove('activated');
-        hwDownBtn.classList.remove('activated');
+// 5. 핵심 코어 순차 주행 연출 메커니즘 엔진
+function executeDriveEngine() {
+    if (appState.selectedQueue.length === 0) {
+        appState.isProcessing = false;
+        toggleInputs(false);
+        screenArrow.textContent = "─";
+        hwBtnUp.classList.remove('glowing');
+        hwBtnDown.classList.remove('glowing');
+        updateWidgetsPreview();
         return;
     }
 
-    const targetFloor = state.queueTargets[0];
-    const initialFloor = state.currentFloor;
+    const nextTarget = appState.selectedQueue[0];
+    const startFloor = appState.currentFloor;
 
-    if (initialFloor === targetFloor) {
-        // 이미 도달한 층이면 패스 후 즉시 다음 인덱스 탐색
-        state.queueTargets.shift();
-        const doneBtn = document.querySelector(`.grid-floor-btn[data-floor="${targetFloor}"]`);
-        if (doneBtn) doneBtn.classList.remove('selected');
-        dispatchNextFloor();
+    if (startFloor === nextTarget) {
+        appState.selectedQueue.shift();
+        const activeChip = document.querySelector(`.floor-chip[data-floor="${nextTarget}"]`);
+        if (activeChip) activeChip.classList.remove('active-target');
+        executeDriveEngine();
         return;
     }
 
-    // 방향 확인 및 실제 하드웨어 물리 버튼 점등 처리
-    const goingUp = targetFloor > initialFloor;
-    elArrow.textContent = goingUp ? '↑' : '↓';
-    if (goingUp) {
-        hwUpBtn.classList.add('activated');
-        hwDownBtn.classList.remove('activated');
+    // 상하 방향 판별 및 하드웨어 매트릭스 버튼 글레이징 조명 가동
+    const isUp = nextTarget > startFloor;
+    screenArrow.textContent = isUp ? "↑" : "↓";
+    if (isUp) {
+        hwBtnUp.classList.add('glowing');
+        hwBtnDown.classList.remove('glowing');
     } else {
-        hwDownBtn.classList.add('activated');
-        hwUpBtn.classList.remove('activated');
+        hwBtnDown.classList.add('glowing');
+        hwBtnUp.classList.remove('glowing');
     }
 
-    // 타임 테이블 기반 실측 이동 시간 편차 연산
-    const startTimeData = TIME_TABLE[initialFloor];
-    const targetTimeData = TIME_TABLE[targetFloor];
-    let timeRemaining = Math.abs(targetTimeData - startTimeData);
-    const roundTotalDuration = timeRemaining;
+    // 타임 테이블 기준 실측 소요 초 편차 추출
+    let segmentDuration = Math.abs(TIME_TABLE_DATA[nextTarget] - TIME_TABLE_DATA[startFloor]);
+    const originalSegmentTime = segmentDuration;
 
-    // [버튼 바로 위 디스플레이 연출] 호출되는 순간 타이머 정보 즉시 렌더링 활성화
-    elCountdown.innerHTML = `${timeRemaining.toFixed(2)}초 뒤\n도착`;
+    // 카운트다운 고해상도 타이머 발진 (40ms 해상도 서브 루프)
+    const intervalRate = 40;
+    appState.timerEngine = setInterval(() => {
+        segmentDuration -= (intervalRate / 1000);
 
-    // 1. 소수점 2자리 리얼타임 연동 초 카운트다운 타이머 기동 (50ms 해상도 조율)
-    const tickRate = 50;
-    state.timerClock = setInterval(() => {
-        timeRemaining -= (tickRate / 1000);
+        if (segmentDuration <= 0) {
+            clearInterval(appState.timerEngine);
+            clearInterval(appState.floorStepEngine);
 
-        if (timeRemaining <= 0) {
-            clearInterval(state.timerClock);
-            clearInterval(state.moveClock);
-
-            // 해당 정차층 최종 도달 스위칭
-            state.currentFloor = targetFloor;
-            renderFloorDisplay(targetFloor);
-            elArrow.textContent = "─";
+            // 목적지 도달 확정 세팅
+            appState.currentFloor = nextTarget;
+            screenFloor.textContent = String(nextTarget).padStart(2, '0');
+            currentFloorSelect.value = nextTarget;
+            screenArrow.textContent = "─";
             
-            // [요청 조건 반영] 도착 시 0.00초 상태를 디스플레이에 계속 유지
-            elCountdown.innerHTML = "0.00초 뒤\n도착";
+            // 이미지 요구사항 구현: 도달한 시점에 0.00초 상태 고정 노출 유지
+            screenTimerMsg.textContent = "0.00초 뒤 도착";
+            widgetTime.textContent = "0.00초";
 
-            // 해당 도달 완료한 제어반 버튼 주황 불빛 꺼주기
-            const currentDoneGridBtn = document.querySelector(`.grid-floor-btn[data-floor="${targetFloor}"]`);
-            if (currentDoneGridBtn) currentDoneGridBtn.classList.remove('selected');
+            // 칩 하이라이트 지우기
+            const doneChip = document.querySelector(`.floor-chip[data-floor="${nextTarget}"]`);
+            if (doneChip) doneChip.classList.remove('active-target');
 
-            // 큐 스택 배열 맨 앞 원소 제거
-            state.queueTargets.shift();
+            appState.selectedQueue.shift();
 
-            // 정차 후 문 열림/승객 승하차 시간 버퍼(약 3.5초 연출) 후 다음 타겟으로 자동 주행 및 타이머 클리어
+            // 정차 승하차 지연 딜레이 버퍼 연출 후 다음 예약지 서칭 스택 재귀 발진
             setTimeout(() => {
-                elCountdown.textContent = ""; // 출발 직전 잠시 텍스트 클리어
-                dispatchNextFloor();
-            }, 3500);
+                executeDriveEngine();
+            }, 2500);
             return;
         }
 
-        // 주행 도중 실시간 카운트다운 숫자 계속 갱신 표기
-        elCountdown.innerHTML = `${timeRemaining.toFixed(2)}초 뒤\n도착`;
-    }, tickRate);
+        screenTimerMsg.textContent = `${segmentDuration.toFixed(2)}초 뒤 도착`;
+        widgetTime.textContent = `${segmentDuration.toFixed(2)}초`;
+    }, intervalRate);
 
-    // 2. 물리 층수 눈금 갱신 타이머 엔진
-    const deltaDistance = Math.abs(targetFloor - initialFloor);
-    const timeScalePerFloor = (roundTotalDuration / deltaDistance) * 1000;
+    // 층수 표시판 물리 가속 동기화 스텝 엔진
+    const floorDistance = Math.abs(nextTarget - startFloor);
+    const msPerFloor = (originalSegmentTime / floorDistance) * 1000;
 
-    state.moveClock = setInterval(() => {
-        if (state.currentFloor !== targetFloor) {
-            state.currentFloor += goingUp ? 1 : -1;
-            renderFloorDisplay(state.currentFloor);
+    appState.floorStepEngine = setInterval(() => {
+        if (appState.currentFloor !== nextTarget) {
+            appState.currentFloor += isUp ? 1 : -1;
+            screenFloor.textContent = String(appState.currentFloor).padStart(2, '0');
+            currentFloorSelect.value = appState.currentFloor;
         } else {
-            clearInterval(state.moveClock);
+            clearInterval(appState.floorStepEngine);
         }
-    }, timeScalePerFloor);
+    }, msPerFloor);
 }
 
-function renderFloorDisplay(floor) {
-    elFloor.textContent = String(floor).padStart(2, '0');
-    currentFloorSelect.value = floor; // 제어용 셀렉트 박스도 바인딩 동동 동기화
+function toggleInputs(disabled) {
+    currentFloorSelect.disabled = disabled;
+    myFloorSelect.disabled = disabled;
+    doorCloseCheck.disabled = disabled;
+    ctaStartBtn.disabled = disabled;
+    ctaStartBtn.style.opacity = disabled ? "0.4" : "1";
 }
 
-function toggleInputControls(disable) {
-    currentFloorSelect.disabled = disable;
-    myFloorSelect.disabled = disable;
-    startBtn.disabled = disable;
-    startBtn.style.opacity = disable ? "0.5" : "1";
-}
-
-// 최초 기본 상태 빌드 업
-renderFloorDisplay(state.currentFloor);
-elArrow.textContent = "─";
+// 초기 로딩 빌드 셋업
+screenFloor.textContent = String(appState.currentFloor).padStart(2, '0');
+screenArrow.textContent = "─";
+updateWidgetsPreview();
