@@ -5,159 +5,181 @@
 }
 
 body {
-    background-color: #1a1f26;
+    background-color: #f0f2f5;
     font-family: 'Malgun Gothic', -apple-system, sans-serif;
     height: 100vh;
-    overflow: hidden;
-}
-
-/* 좌우 반반 50:50 분리형 스플릿 프레임 */
-.split-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-}
-
-/* ==========================================================================
-   [좌측 스크린] 관제 대시보드 화면 스타일링
-   ========================================================================== */
-.left-control-panel {
-    flex: 1;
-    background: radial-gradient(circle at top left, #242c38 0%, #151a22 100%);
-    border-right: 2px solid #2d3748;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px;
+    gap: 80px;
 }
 
-.dashboard-card {
-    background: rgba(30, 39, 51, 0.75);
-    border: 1px solid #3d4d65;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 460px;
-    padding: 35px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    backdrop-filter: blur(10px);
-}
-
-.dashboard-card h2 {
-    color: #e2e8f0; font-size: 1.25rem; letter-spacing: 1.5px; text-align: center; margin-bottom: 12px;
-}
-.dash-divider {
-    border: 0; height: 1px; background: linear-gradient(to right, transparent, #4a5d78, transparent); margin-bottom: 25px;
-}
-
-.input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-.input-group label { color: #a0aec0; font-size: 0.85rem; font-weight: bold; }
-.input-group select {
-    background: #151b23; color: #ffffff; border: 1px solid #4a5568; padding: 10px 14px;
-    border-radius: 8px; font-size: 1.1rem; font-weight: bold; outline: none; cursor: pointer;
-}
-
-.close-btn-wrapper { flex-direction: row; align-items: center; gap: 15px; margin-top: 5px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; }
-.switch-label { position: relative; display: inline-block; width: 46px; height: 24px; }
-.switch-label input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a5568; border-radius: 24px; transition: .3s; }
-.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; }
-input:checked + .slider { background-color: #dd6b20; }
-input:checked + .slider:before { transform: translateX(22px); }
-.switch-text { color: #cbd5e0; font-size: 0.88rem; font-weight: bold;}
-
-.status-display-box { background: #0d1117; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; margin-top: 25px; }
-.status-title { color: #718096; font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; }
-.status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.status-label { color: #a0aec0; font-size: 0.95rem; }
-.status-value { color: #ffffff; font-size: 1.1rem; font-weight: bold; }
-.status-value.highlight { color: #f6ad55; font-size: 1.3rem; font-family: monospace; }
-.status-msg { color: #63b3ed; font-size: 0.95rem; font-weight: bold; }
-
-/* ==========================================================================
-   [우측 스크린] 실제 엘리베이터 패널 화면 스타일링
-   ========================================================================== */
-.right-hardware-panel {
-    flex: 1; background-color: #eef1f6; display: flex; justify-content: center; align-items: center; padding: 40px;
-}
-
-.elevator-panel {
-    background: linear-gradient(to right, #e6e6e6, #cccccc 30%, #bcbcbc 70%, #c6c6c6);
-    width: 170px; height: 580px; border-radius: 35px; border: 1px solid #9e9e9e;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.8);
-    display: flex; flex-direction: column; align-items: center; padding: 35px 16px; position: relative;
-}
-
-.screw { width: 10px; height: 10px; background: radial-gradient(circle at 35% 35%, #ffffff, #888 70%, #444 100%); border-radius: 50%; position: absolute; box-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
-.screw::before { content: ''; position: absolute; top: 4px; left: 1px; width: 8px; height: 2px; background-color: #333; }
-.screw.top { top: 15px; }
-.screw.bottom { bottom: 15px; }
-
-/* 검정색 스크린 글래스 (예측시간과 정차예정층의 균형 잡힌 정렬 배치) */
-.black-screen {
-    background: #080808;
-    width: 100%;
-    height: 270px;
+/* SET MY FLOOR 컨테이너 스타일 */
+.floor-selector-box {
+    background: #ffffff;
+    border: 2px solid #0056b3;
     border-radius: 8px;
-    border: 2px solid #444444;
-    box-shadow: inset 0 6px 15px rgba(0,0,0,0.9);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.floor-selector-box label {
+    color: #0056b3;
+    font-weight: bold;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.floor-selector-box select {
+    padding: 4px 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 아날로그 실버 롱 패널 */
+.elevator-panel {
+    background: linear-gradient(to right, #e2e2e2, #cccccc 30%, #bbbbbb 70%, #c8c8c8);
+    width: 175px;
+    height: 560px;
+    border-radius: 35px;
+    border: 1px solid #999999;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px 15px 10px;
+    padding: 30px 16px;
+    position: relative;
+}
+
+/* 상하단 고정 나사 부속 */
+.screw {
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #888 70%, #444 100%);
+    border-radius: 50%;
+    position: absolute;
+}
+.screw::before {
+    content: ''; position: absolute; top: 4px; left: 1px; width: 8px; height: 2px; background-color: #333;
+}
+.screw.top { top: 12px; }
+.screw.bottom { bottom: 12px; }
+
+/* 유광 블랙 디스플레이 스크린 구역 */
+.black-screen {
+    background: #0d0d0d;
+    width: 100%;
+    height: 290px;
+    border-radius: 12px;
+    border: 2px solid #333333;
+    box-shadow: inset 0 8px 20px rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
     margin-bottom: auto;
 }
 
-/* 선명한 Red 고휘도 LED 효과 설정 */
+/* 레드 디지털 LED 네온 효과 구현 */
 .led-arrow {
-    color: #ff1e1e; font-size: 2.8rem; font-weight: bold; height: 35px; line-height: 35px;
-    text-shadow: 0 0 10px rgba(255, 30, 30, 0.8);
-}
-.led-number {
-    color: #ff1e1e; font-size: 4.8rem; font-family: 'Courier New', Courier, monospace; font-weight: bold; line-height: 1;
-    text-shadow: 0 0 12px rgba(255, 30, 30, 0.8); margin-top: 2px;
+    color: #ff0000;
+    font-size: 2.5rem;
+    font-weight: bold;
+    height: 35px;
+    line-height: 35px;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.75);
 }
 
-/* [위치 조정] 실시간 카운트다운 예측 도착 시간 디자인 */
+.led-number {
+    color: #ff0000;
+    font-size: 4.8rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(255, 0, 0, 0.85);
+    margin-top: 5px;
+}
+
+/* 도착 예정 시간 스타일 (항상 노출 유지) */
 .led-timer {
-    margin-top: 15px;
-    color: #ff3333;
+    margin-top: auto;
+    color: #ff2222;
     font-size: 1.05rem;
     font-weight: bold;
     text-align: center;
-    min-height: 24px;
-    text-shadow: 0 0 8px rgba(255, 51, 51, 0.7);
+    line-height: 1.4;
+    text-shadow: 0 0 6px rgba(255, 34, 34, 0.7);
 }
 
-/* [대폭 업그레이드] 요청하신 이미지 형태의 순수 LED 정차 예정층 스타일 (종착 시 투명하게 사라짐) */
+/* 정차 예정층 스타일 (움직임 종료 시 사라짐) */
 .led-stop-floor {
-    margin-top: 10px;
-    color: #ff1e1e;
-    font-size: 1.4rem; /* 숫자가 명확히 보이도록 크기 확대 */
-    font-family: 'Courier New', Courier, monospace;
+    margin-top: 4px;
+    color: #ff2222;
+    font-size: 1.15rem;
     font-weight: bold;
     text-align: center;
-    min-height: 28px;
-    text-shadow: 0 0 10px rgba(255, 30, 30, 0.9);
-    transition: opacity 0.2s ease-in-out; /* 사라질 때 자연스럽게 전환 */
+    min-height: 22px;
+    text-shadow: 0 0 8px rgba(255, 34, 34, 0.8);
 }
 
-/* 정밀 가공 은색 프레임 주황색 물리 버튼 디자인 */
-.button-set { display: flex; flex-direction: column; gap: 14px; margin-bottom: 5px; }
+/* 버튼 세트 및 하드웨어 스타일링 */
+.button-set {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
 .elevator-physical-btn {
-    width: 76px; height: 50px; background: linear-gradient(to bottom, #eaeaea 0%, #b5b5b5 100%);
-    border-radius: 12px; border: 1px solid #8e8e8e; padding: 3px; cursor: pointer; outline: none;
-    box-shadow: 0 4px 0 #707070, 0 6px 10px rgba(0, 0, 0, 0.18), inset 0 1px 1px #fff;
-    transition: all 0.04s ease;
+    width: 78px;
+    height: 52px;
+    background: linear-gradient(to bottom, #fcfcfc 0%, #bcbcbc 100%);
+    border-radius: 12px;
+    border: 1px solid #888888;
+    padding: 3px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 4px 0 #666666, 0 6px 10px rgba(0, 0, 0, 0.15), inset 0 1px 1px #fff;
+    transition: all 0.05s ease;
 }
+
 .btn-inner {
-    width: 100%; height: 100%; background: linear-gradient(to bottom, #ffffff 0%, #d6d6d6 40%, #b8b8b8 100%);
-    border-radius: 8px; border: 1px solid #a8a8a8; display: flex; justify-content: center; align-items: center;
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.7);
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #ffffff 0%, #dbdbdb 40%, #b3b3b3 100%);
+    border-radius: 8px;
+    border: 1px solid #999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 .elevator-physical-btn:active, .elevator-physical-btn.active {
-    box-shadow: 0 1px 0 #4a4a4a, 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 0 #444444, 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 3px rgba(0,0,0,0.1);
     transform: translateY(3px);
 }
-.elevator-physical-btn svg { width: 22px; height: 22px; fill: #df6e1d; filter: drop-shadow(0px 1px 1px rgba(255,255,255,0.7)); }
-.elevator-physical-btn.active .btn-inner { background: linear-gradient(to bottom, #fff3e6 0%, #ffd0a3 100%); border-color: #ff9326; }
-.elevator-physical-btn.active svg { fill: #ff851b; filter: drop-shadow(0px 0px 5px rgba(255, 133, 27, 0.85)); }
+
+.elevator-physical-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: #d36a13;
+}
+
+.elevator-physical-btn.active .btn-inner {
+    background: linear-gradient(to bottom, #fff4e8 0%, #ffcda1 100%);
+    border-color: #f78e2e;
+}
+
+.elevator-physical-btn.active svg {
+    fill: #ff7f00;
+    filter: drop-shadow(0px 0px 4px rgba(255, 127, 0, 0.8));
+}
