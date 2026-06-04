@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 * {
     box-sizing: border-box;
@@ -7,319 +7,363 @@
 }
 
 body {
-    background-color: #f1f5f9;
-    font-family: 'Inter', sans-serif;
+    background-color: #ebedf2;
+    font-family: 'Inter', 'Malgun Gothic', sans-serif;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #1e293b;
+}
+
+/* 전체 콘테이너 (화이트/그레이 모던 룩) */
+.app-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 60px;
     padding: 20px;
 }
 
-.app-wrapper {
+/* 왼쪽 제어 패널 */
+.left-panel {
+    width: 540px;
     display: flex;
-    align-items: flex-start;
-    gap: 50px;
-    max-width: 1000px;
-    width: 100%;
-    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* ---------------------------------------------------------------- */
-/* LEFT: 깔끔한 화이트 카드 입력 폼 스타일 */
-/* ---------------------------------------------------------------- */
+/* 메인 흰색 카드 구조 */
 .input-card {
     background-color: #ffffff;
     border-radius: 24px;
     padding: 35px;
-    width: 520px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
-.badge {
-    display: inline-block;
+.badge-prototype {
     background-color: #0f172a;
     color: #ffffff;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     padding: 4px 10px;
-    border-radius: 20px;
+    border-radius: 999px;
+    display: inline-block;
     margin-bottom: 15px;
     letter-spacing: 0.5px;
 }
 
-h2 {
-    font-size: 1.65rem;
+.title {
+    font-size: 1.75rem;
+    color: #1e293b;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .description {
-    font-size: 0.88rem;
     color: #64748b;
-    margin-bottom: 25px;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
 }
 
-/* 셀렉트 박스 배열 */
+/* 드롭다운 레이아웃 */
 .select-row {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 25px;
 }
 
-.select-group {
+.select-box {
     flex: 1;
 }
 
-.select-group label {
+.select-box label {
     display: block;
     font-size: 0.85rem;
-    font-weight: 600;
-    color: #334155;
+    font-weight: 700;
+    color: #1e293b;
     margin-bottom: 8px;
 }
 
-.select-group select {
+.select-box select {
     width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 1px solid #cbd5e1;
+    padding: 14px;
     font-size: 0.95rem;
-    color: #334155;
-    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background-color: #ffffff;
+    color: #1e293b;
     outline: none;
     cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
 }
 
-/* 정차 예정층 영역 */
-.stop-floor-section {
-    background-color: #f8fafc;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
+/* 정차 예정층 그리드 */
+.floor-grid-zone {
+    margin-bottom: 25px;
 }
 
-.stop-floor-section h3 {
+.grid-title {
     font-size: 0.9rem;
-    font-weight: 600;
-    color: #334155;
-    margin-bottom: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
 }
 
-.floor-buttons-grid {
+.floor-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
 .floor-btn {
-    padding: 12px;
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    padding: 14px 0;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: #334155;
+    color: #1e293b;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s;
 }
 
 .floor-btn:hover {
-    background-color: #f1f5f9;
+    background-color: #f8fafc;
 }
 
-/* 정차층 선택되었을 때 활성화 스타일 (파란색 계열 테두리/텍스트) */
-.floor-btn.selected {
-    border-color: #3b82f6;
-    color: #3b82f6;
-    background-color: #eff6ff;
+/* 선택되었을 때 파란색/검은색 계열 활성화 스타일 */
+.floor-btn.active {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
 }
 
-/* 체크박스 영역 */
-.checkbox-container {
-    background-color: #fff7ed;
-    padding: 14px 16px;
-    border-radius: 10px;
+/* 문닫힘 버튼 옵션 영역 */
+.checkbox-bar {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-.checkbox-container input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    background-color: #fff7ed;
+    padding: 14px 20px;
+    border-radius: 12px;
     cursor: pointer;
-}
-
-.checkbox-container label {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #c2410c;
-    cursor: pointer;
-}
-
-/* 하단 결과 블록 */
-.summary-row {
-    display: flex;
-    gap: 15px;
+    user-select: none;
     margin-bottom: 20px;
 }
 
-.summary-box {
+.checkbox-bar input {
+    position: absolute;
+    opacity: 0;
+}
+
+.custom-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background-color: #ffffff;
+    margin-right: 12px;
+    position: relative;
+}
+
+.checkbox-bar input:checked ~ .custom-checkbox {
+    background-color: #ea580c;
+    border-color: #ea580c;
+}
+
+.checkbox-bar input:checked ~ .custom-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #9a3412;
+}
+
+/* 하단 가동 제어 버튼 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+#start-btn {
+    flex: 3;
+    background-color: #1e293b;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+}
+#reset-btn {
     flex: 1;
-    background-color: #0f172a;
-    border-radius: 14px;
-    padding: 15px;
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: none;
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
 }
 
-.summary-label {
-    display: block;
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-bottom: 6px;
+/* 하단 결과 검은색 카드 */
+.result-row {
+    display: flex;
+    gap: 15px;
 }
 
-.summary-value {
-    font-size: 1.3rem;
+.result-card {
+    flex: 1;
+    background-color: #111827;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.result-label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 8px;
+}
+
+.result-value {
+    font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
 }
 
-.summary-value.value-red {
+.text-red {
     color: #ef4444;
 }
 
-#btn-simulate {
-    width: 100%;
-    padding: 14px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-}
-#btn-simulate:disabled {
-    background-color: #cbd5e1;
-    cursor: not-allowed;
-    box-shadow: none;
+/* 우측 엘리베이터 인디케이터 기기 */
+.right-panel {
+    display: flex;
+    align-items: center;
 }
 
-/* ---------------------------------------------------------------- */
-/* RIGHT: 캡처본 완벽 구현 세로형 외부 LED 엘리베이터 패널 */
-/* ---------------------------------------------------------------- */
-.elevator-panel {
-    background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 60%, #94a3b8 100%);
-    width: 180px;
-    border-radius: 28px;
-    padding: 35px 15px;
+.elevator-indicator {
+    background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+    width: 200px;
+    height: 620px;
+    border-radius: 40px;
+    padding: 30px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 
-        0 15px 40px rgba(0, 0, 0, 0.15),
-        inset 1px 1px 3px rgba(255, 255, 255, 0.8),
-        inset -1px -1px 3px rgba(0, 0, 0, 0.1);
     position: relative;
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.12),
+        inset 1px 1px 3px #fff,
+        inset -1px -1px 3px rgba(0,0,0,0.1);
     border: 1px solid #cbd5e1;
 }
 
 .screw {
-    width: 10px;
-    height: 2px;
-    background-color: #64748b;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle at 30% 30%, #fff, #94a3b8 80%);
+    border-radius: 50%;
     position: absolute;
 }
-.top-screw { top: 12px; left: calc(50% - 5px); }
-.bottom-screw { bottom: 12px; left: calc(50% - 5px); }
+.top-screw { top: 15px; }
+.bottom-screw { bottom: 15px; }
 
-/* 실제 전광판 창 스크린 */
-.led-display-screen {
-    background-color: #080808;
+/* 검은색 LED 내부 화면 */
+.led-display {
+    background-color: #000000;
     width: 100%;
-    height: 220px;
-    border-radius: 12px;
-    padding: 15px 10px;
+    height: 340px;
+    border-radius: 20px;
+    padding: 25px 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8);
-    margin-bottom: 30px;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
 }
 
-.arrow-indicator {
+.led-arrow {
     color: #ef4444;
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
+    margin-bottom: 5px;
     height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
 }
 
-.floor-number {
-    font-family: 'Orbitron', monospace;
+.led-floor {
     color: #ef4444;
-    font-size: 3.8rem;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 20px;
-    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8));
-}
-
-/* 캡처 화면 텍스트 전용 스타일 */
-.live-status-group {
-    width: 100%;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-#led-timer-text, #led-next-floor-text {
-    color: #ef4444;
-    font-size: 0.82rem;
+    font-size: 5rem;
     font-weight: 700;
-    letter-spacing: -0.2px;
-    filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+    line-height: 1;
+    margin-bottom: auto;
+    font-family: monospace;
 }
 
-/* 외부 승강기 화살표 기계식 조작 버튼 */
-.hardware-buttons {
+.led-status-text {
+    color: #ef4444;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.led-sub-text {
+    color: #ef4444;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-align: center;
+}
+
+/* 기계식 기기 버튼 구조 */
+.hw-button-area {
+    margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    width: 70px;
-}
-
-.arrow-btn {
-    width: 70px;
-    height: 55px;
-    background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
-    border: 1px solid #a4b5cb;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    color: #e28743;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #94a3b8, 0 4px 8px rgba(0,0,0,0.1);
-    transition: all 0.1s ease;
-    outline: none;
-    display: flex;
+    gap: 15px;
+    width: 100%;
     align-items: center;
-    justify-content: center;
 }
 
-/* 활성화(눌려진 상태) 조명 스위치 */
-.arrow-btn.active {
-    background: linear-gradient(to bottom, #fffae6 0%, #ffe0b3 100%);
+.hw-btn {
+    width: 75px;
+    height: 55px;
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #94a3b8, 0 6px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s;
+}
+
+.hw-btn span {
+    font-size: 1.2rem;
+    color: #94a3b8;
+}
+
+/* 주행 가동 시 버튼에 오렌지색 불빛이 도는 활성화 효과 */
+.hw-btn.active {
+    background: linear-gradient(180deg, #fff3eb 0%, #ffe4d1 100%);
     border-color: #f97316;
-    color: #ea580c;
-    box-shadow: 0 1px 0 #c2410c, 0 2px 4px rgba(249, 115, 22, 0.2);
-    transform: translateY(3px);
+    box-shadow: 0 2px 0 #ea580c, 0 4px 8px rgba(249, 115, 22, 0.2);
+    transform: translateY(2px);
+}
+
+.hw-btn.active span {
+    color: #f97316;
 }
