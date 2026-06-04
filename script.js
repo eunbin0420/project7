@@ -1,84 +1,211 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 층별 시간 실측 기본 데이터 셋
-    const TIMETABLE = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
+let currentFloor = 1;
+let isMoving = false;
+const selectedStops = new Set();
 
-    let currentSelectedFloor = null; // 단일 정차 예정층 변수
+const moveTimeFrom1 = {
+  1: 0,
+  2: 9.02,
+  3: 12.01,
+  4: 16.31,
+  5: 19.88,
+  6: 22.27,
+  7: 25.84,
+  8: 29.25
+};
 
-    // DOM 객체 바인딩
-    const currentSelect = document.getElementById('current-floor');
-    const mySelect = document.getElementById('my-floor');
-    const doorCheckbox = document.getElementById('door-close');
-    const floorButtons = document.querySelectorAll('.floor-btn');
+const doorTimeFast = 8.60;
+const doorTimeNormal = 17.22;
 
-    const resTime = document.getElementById('res-time');
-    const resFloor = document.getElementById('res-floor');
-    const ledTimeMsg = document.getElementById('led-time-msg');
-    const ledFloorMsg = document.getElementById('led-floor-msg');
-    const ledNum = document.getElementById('led-num');
+const currentFloorSelect = document.getElementById("currentFloor");
+const myFloorSelect = document.getElementById("myFloor");
+const stopFloorsBox = document.getElementById("stopFloors");
+const doorClose = document.getElementById("doorClose");
+const stopResult = document.getElementById("stopResult");
+const timeResult = document.getElementById("timeResult");
+const floorDisplay = document.getElementById("floorDisplay");
+const etaDisplay = document.getElementById("etaDisplay");
+const directionIcon = document.getElementById("directionIcon");
+const upBtn = document.getElementById("upBtn");
+const downBtn = document.getElementById("downBtn");
+const resetBtn = document.getElementById("resetBtn");
 
-    // 초기 실행 시 화면 값 동기화
-    runCalculator();
+function initFloors() {
+  for (let i = 1; i <= 8; i++) {
+    currentFloorSelect.innerHTML += `<option value="${i}">${i}층</option>`;
+    myFloorSelect.innerHTML += `<option value="${i}">${i}층</option>`;
 
-    // 1. 현재 엘리베이터 층 변경 시 하드웨어 패널 숫자 연동
-    currentSelect.addEventListener('change', () => {
-        const cFloor = currentSelect.value;
-        ledNum.textContent = String(cFloor).padStart(2, '0');
-        runCalculator();
+    const btn = document.createElement("button");
+    btn.className = "floor-chip";
+    btn.textContent = i + "층";
+
+    btn.addEventListener("click", () => {
+      if (selectedStops.has(i)) {
+        selectedStops.delete(i);
+        btn.classList.remove("active");
+      } else {
+        selectedStops.add(i);
+        btn.classList.add("active");
+      }
+      updatePreview();
     });
 
-    // 2. 내가 있는 층 셀렉트 변경 시 연동
-    mySelect.addEventListener('change', runCalculator);
+    stopFloorsBox.appendChild(btn);
+  }
 
-    // 3. 문닫힘 체크박스 토글 시 연동
-    doorCheckbox.addEventListener('change', runCalculator);
+  currentFloorSelect.value = 1;
+  myFloorSelect.value = 4;
+}
 
-    // 4. 정차 예정층 토글 버튼 핸들러
-    floorButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const picked = parseInt(btn.getAttribute('data-floor'), 10);
+function getMoveTime(start, end) {
+  return Math.abs(moveTimeFrom1[end] - moveTimeFrom1[start]);
+}
 
-            // 동일한 층을 다시 누르면 해제, 다른 층을 누르면 변경
-            if (currentSelectedFloor === picked) {
-                currentSelectedFloor = null;
-                btn.classList.remove('active');
-            } else {
-                floorButtons.forEach(b => b.classList.remove('active'));
-                currentSelectedFloor = picked;
-                btn.classList.add('active');
-            }
+function calculateTime() {
+  const start = Number(currentFloorSelect.value);
+  const end = Number(myFloorSelect.value);
 
-            runCalculator();
-        });
-    });
+  const stops = [...selectedStops]
+    .filter(f => f > Math.min(start, end) && f < Math.max(start, end))
+    .sort((a, b) => start < end ? a - b : b - a);
 
-    // 핵심: 화면 속 수치들을 계산하고 매핑하는 함수
-    function runCalculator() {
-        const start = parseInt(currentSelect.value, 10);
-        const mine = parseInt(mySelect.value, 10);
-        
-        // 정차 예정층이 지정되어 있다면 거기를 들렀다 오고, 없으면 내 층으로 직행
-        const destination = currentSelectedFloor !== null ? currentSelectedFloor : mine;
+  const route = [start, ...stops, end];
 
-        // 텍스트 패널 업데이트
-        if (currentSelectedFloor !== null) {
-            resFloor.textContent = `${currentSelectedFloor}층`;
-            ledFloorMsg.textContent = `정차 예정층: ${currentSelectedFloor}층`;
-        } else {
-            resFloor.textContent = '없음';
-            ledFloorMsg.textContent = '정차 예정층: 없음';
-        }
+  let moveTime = 0;
 
-        // 주행 시간 공식
-        let duration = Math.abs(TIMETABLE[destination] - TIMETABLE[start]);
+  for (let i = 0; i < route.length - 1; i++) {
+    moveTime += getMoveTime(route[i], route[i + 1]);
+  }
 
-        // 문닫힘 버튼을 누르지 않은 상태라면(체크 해제 시) 8.60초 가산
-        if (!doorCheckbox.checked) {
-            duration += 8.60;
-        }
+  const doorTime = doorClose.checked ? doorTimeFast : doorTimeNormal;
 
-        // 소수점 2자리 포맷팅 후 모든 영역에 동시 주입
-        const formattedTime = `${duration.toFixed(2)}초`;
-        resTime.textContent = formattedTime;
-        ledTimeMsg.textContent = `${formattedTime} 뒤 도착`;
+  const totalTime = moveTime + doorTime + stops.length * doorTime;
+
+  return { start, end, stops, route, totalTime };
+}
+
+function updatePreview() {
+  const result = calculateTime();
+
+  const stopText =
+    result.stops.length > 0
+      ? result.stops.map(f => f + "층").join(", ")
+      : "없음";
+
+  stopResult.innerText = stopText;
+  timeResult.innerText = result.totalTime.toFixed(2) + "초";
+
+  etaDisplay.innerText =
+    result.totalTime.toFixed(2) +
+    "초 뒤 도착\n" +
+    "정차 예정층: " +
+    stopText;
+}
+
+function setFloorDisplay(floor) {
+  floorDisplay.innerText = String(floor).padStart(2, "0");
+}
+
+function startElevator(direction) {
+  if (isMoving) return;
+
+  const result = calculateTime();
+
+  if (result.start === result.end) {
+    etaDisplay.innerText = "이미 도착";
+    return;
+  }
+
+  isMoving = true;
+
+  const pressedBtn = direction === "up" ? upBtn : downBtn;
+  pressedBtn.classList.add("pressed");
+
+  directionIcon.innerText = result.end > result.start ? "▲" : "▼";
+
+  const stopText =
+    result.stops.length > 0
+      ? result.stops.map(f => f + "층").join(", ")
+      : "없음";
+
+  etaDisplay.innerText =
+    result.totalTime.toFixed(2) +
+    "초 뒤 도착\n" +
+    "정차 예정층: " +
+    stopText;
+
+  let routeIndex = 0;
+
+  function moveNext() {
+    if (routeIndex >= result.route.length - 1) {
+      etaDisplay.innerText = "도착 완료";
+      pressedBtn.classList.remove("pressed");
+      isMoving = false;
+      currentFloorSelect.value = currentFloor;
+      updatePreview();
+      return;
     }
+
+    const nextFloor = result.route[routeIndex + 1];
+    const step = nextFloor > currentFloor ? 1 : -1;
+
+    const timer = setInterval(() => {
+      currentFloor += step;
+      setFloorDisplay(currentFloor);
+
+      if (currentFloor === nextFloor) {
+        clearInterval(timer);
+        routeIndex++;
+
+        if (currentFloor !== result.end) {
+          etaDisplay.innerText =
+            currentFloor +
+            "층 정차\n" +
+            "정차 예정층: " +
+            stopText;
+
+          setTimeout(moveNext, 900);
+        } else {
+          setTimeout(moveNext, 500);
+        }
+      }
+    }, 650);
+  }
+
+  moveNext();
+}
+
+doorClose.addEventListener("change", updatePreview);
+
+currentFloorSelect.addEventListener("change", () => {
+  currentFloor = Number(currentFloorSelect.value);
+  setFloorDisplay(currentFloor);
+  updatePreview();
 });
+
+myFloorSelect.addEventListener("change", updatePreview);
+
+upBtn.addEventListener("click", () => startElevator("up"));
+downBtn.addEventListener("click", () => startElevator("down"));
+
+resetBtn.addEventListener("click", () => {
+  selectedStops.clear();
+
+  document.querySelectorAll(".floor-chip").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  currentFloor = 1;
+  currentFloorSelect.value = 1;
+  myFloorSelect.value = 4;
+  doorClose.checked = false;
+
+  directionIcon.innerText = "─";
+  setFloorDisplay(1);
+  etaDisplay.innerText = "대기 중";
+
+  updatePreview();
+});
+
+initFloors();
+setFloorDisplay(1);
+updatePreview();
