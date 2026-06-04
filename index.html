@@ -1,114 +1,77 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>예상 정차층 입력</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>엘리베이터 도착 예정시간</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        
-        <!-- 좌측: 메인 입력 카드 구역 -->
-        <div class="left-section">
-            <div class="main-card">
-                <div class="badge">PROTOTYPE</div>
-                <h1 class="main-title">예상 정차층 입력</h1>
-                <p class="sub-title">정차 예정층과 문닫힘 버튼 여부를 반영해 도착 시간을 계산합니다.</p>
+<main class="app">
 
-                <!-- 선택 상자 영역 -->
-                <div class="select-container">
-                    <div class="select-group">
-                        <label>현재 엘리베이터 층</label>
-                        <select id="current-floor">
-                            <option value="1" selected>1층</option>
-                            <option value="2">2층</option>
-                            <option value="3">3층</option>
-                            <option value="4">4층</option>
-                            <option value="5">5층</option>
-                            <option value="6">6층</option>
-                            <option value="7">7층</option>
-                            <option value="8">8층</option>
-                        </select>
-                    </div>
-                    <div class="select-group">
-                        <label>내가 있는 층</label>
-                        <select id="my-floor">
-                            <option value="1">1층</option>
-                            <option value="2">2층</option>
-                            <option value="3">3층</option>
-                            <option value="4" selected>4층</option>
-                            <option value="5">5층</option>
-                            <option value="6">6층</option>
-                            <option value="7">7층</option>
-                            <option value="8">8층</option>
-                        </select>
-                    </div>
-                </div>
+  <section class="control-card">
+    <span class="badge">PROTOTYPE</span>
+    <h1>예상 정차층 입력</h1>
+    <p>정차 예정층과 문닫힘 버튼 여부를 반영해 도착 시간을 계산합니다.</p>
 
-                <!-- 정차 예정층 버튼 그리드 -->
-                <div class="floor-section">
-                    <h2>정차 예정층 선택</h2>
-                    <div class="floor-grid">
-                        <button class="floor-btn" data-floor="1">1층</button>
-                        <button class="floor-btn" data-floor="2">2층</button>
-                        <button class="floor-btn" data-floor="3">3층</button>
-                        <button class="floor-btn" data-floor="4">4층</button>
-                        <button class="floor-btn" data-floor="5">5층</button>
-                        <button class="floor-btn" data-floor="6">6층</button>
-                        <button class="floor-btn" data-floor="7">7층</button>
-                        <button class="floor-btn" data-floor="8">8층</button>
-                    </div>
-                </div>
+    <div class="input-grid">
+      <label>
+        현재 엘리베이터 층
+        <select id="currentFloor"></select>
+      </label>
 
-                <!-- 문닫힘 체크박스 바 -->
-                <div class="checkbox-bar">
-                    <input type="checkbox" id="door-close">
-                    <label for="door-close">문닫힘 버튼을 바로 누름</label>
-                </div>
-            </div>
-
-            <!-- 이미지 화면 그대로 카드 하단에 걸쳐 있는 검은색 결과 대시보드 -->
-            <div class="result-dashboard">
-                <div class="result-box">
-                    <div class="result-label">예상 도착시간</div>
-                    <div class="result-value val-red" id="res-time">33.53초</div>
-                </div>
-                <div class="result-box">
-                    <div class="result-label">정차 예정층</div>
-                    <div class="result-value val-red" id="res-floor">없음</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 우측: 세로형 외부 호출 패널 기기 구역 -->
-        <div class="right-section">
-            <div class="hardware-panel">
-                <div class="screw top"></div>
-                
-                <!-- 내부 전광판 디스플레이 -->
-                <div class="led-screen">
-                    <div class="led-arrow" id="led-arrow">─</div>
-                    <div class="led-num" id="led-num">01</div>
-                    <div class="led-text-group">
-                        <div class="led-msg-red" id="led-time-msg">33.53초 뒤 도착</div>
-                        <div class="led-msg-red" id="led-floor-msg">정차 예정층: 없음</div>
-                    </div>
-                </div>
-
-                <!-- 외부 기계식 매립 화살표 버튼 -->
-                <div class="btn-group">
-                    <button class="hw-btn" id="btn-up">▲</button>
-                    <button class="hw-btn" id="btn-down">▼</button>
-                </div>
-
-                <div class="screw bottom"></div>
-            </div>
-        </div>
-
+      <label>
+        내가 있는 층
+        <select id="myFloor"></select>
+      </label>
     </div>
 
-    <script src="script.js"></script>
+    <div class="stop-box">
+      <h3>정차 예정층 선택</h3>
+      <div id="stopFloors" class="floor-buttons"></div>
+    </div>
+
+    <label class="close-row">
+      <input type="checkbox" id="doorClose">
+      문닫힘 버튼을 바로 누름
+    </label>
+
+    <div class="result-box">
+      <div>
+        <span>예상 도착시간</span>
+        <strong id="timeResult">대기 중</strong>
+      </div>
+      <div>
+        <span>정차 예정층</span>
+        <strong id="stopResult">없음</strong>
+      </div>
+    </div>
+
+    <button id="resetBtn" class="reset-btn">초기화</button>
+  </section>
+
+  <section class="preview-card">
+    <div class="elevator-panel">
+      <div class="screw top"></div>
+
+      <div class="screen">
+        <div id="directionIcon" class="direction">─</div>
+        <div id="floorDisplay" class="floor-display">01</div>
+        <div id="etaDisplay" class="eta-display">
+          대기 중
+        </div>
+      </div>
+
+      <button id="upBtn" class="call-btn">▲</button>
+      <button id="downBtn" class="call-btn">▼</button>
+
+      <div class="screw bottom"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
