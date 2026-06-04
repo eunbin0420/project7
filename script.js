@@ -1,227 +1,158 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 층별 실측 데이터 베이스 매핑 테이블 (Key 매칭 엄격화)
+    // 실제 측정된 초 단위 층별 타임라인 테이블
     const CRITICAL_TIME_MAP = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
+    
+    // 왼쪽 샤프트 통로 높이(480px) 안에서 각 층별 픽셀 위치 매핑 (층당 60px)
+    const FLOOR_POSITION_MAP = { 1: 0, 2: 60, 3: 120, 4: 180, 5: 240, 6: 300, 7: 360, 8: 420 };
 
-    let systemState = {
+    let elevatorState = {
         currentFloor: 1,
-        targetQueue: [], 
-        isDriving: false,
-        timerClock: null,
-        floorClock: null
+        selectedQueue: [], 
+        isMoving: false,
+        timerInterval: null
     };
 
-    // DOM 캐싱 엔진
-    const screenArrow = document.getElementById('screen-arrow');
-    const screenFloor = document.getElementById('screen-floor');
-    const screenTimerMsg = document.getElementById('screen-timer-msg');
-    const screenNextMsg = document.getElementById('screen-next-msg');
+    const elevatorCar = document.getElementById('elevator-car');
+    const carDisplay = document.querySelector('.car-display');
+    const panelArrow = document.getElementById('panel-arrow');
+    const panelFloor = document.getElementById('panel-floor');
+    
+    const liveTimerMsg = document.getElementById('live-timer-msg');
+    const liveStatusMsg = document.getElementById('live-status-msg');
+    
+    const insideButtons = document.querySelectorAll('.elevator-inside-btn');
+    const btnDoorClose = document.getElementById('btn-door-close');
+    const btnDoorOpen = document.getElementById('btn-door-open');
+    const systemStartTrigger = document.getElementById('system-start-trigger');
 
-    const widgetTime = document.getElementById('widget-time');
-    const widgetNextFloor = document.getElementById('widget-next-floor');
-    const widgetDoorStatus = document.getElementById('widget-door-status');
+    // 내부 버튼 클릭 시 작동 핸들러
+    insideButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (elevatorState.isMoving) return; 
 
-    const currentFloorSelect = document.getElementById('current-floor-select');
-    const myFloorSelect = document.getElementById('my-floor-select');
-    const doorCloseCheckbox = document.getElementById('door-close-checkbox');
-    const floorChips = document.querySelectorAll('.floor-chip');
+            const targetFloor = parseInt(button.getAttribute('data-floor'), 10);
 
-    const ctaStartBtn = document.getElementById('cta-start-btn');
-    const ctaResetBtn = document.getElementById('cta-reset-btn');
-    const hwBtnUp = document.getElementById('hw-btn-up');
-    const hwBtnDown = document.getElementById('hw-btn-down');
-
-    // 왼쪽 컨트롤 보드 격자 클릭 핸들러 (다중 토글 버그 해결)
-    floorChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            if (systemState.isDriving) return; 
-            
-            const selectedFloor = parseInt(chip.getAttribute('data-floor'), 10);
-
-            if (systemState.targetQueue.includes(selectedFloor)) {
-                systemState.targetQueue = systemState.targetQueue.filter(f => f !== selectedFloor);
-                chip.classList.remove('active-target');
+            if (elevatorState.selectedQueue.includes(targetFloor)) {
+                elevatorState.selectedQueue = elevatorState.selectedQueue.filter(f => f !== targetFloor);
+                button.classList.remove('button-pressed');
             } else {
-                systemState.targetQueue.push(selectedFloor);
-                chip.classList.add('active-target');
+                elevatorState.selectedQueue.push(targetFloor);
+                button.classList.add('button-pressed');
             }
-            
-            calculateRealtimePreview();
         });
     });
 
-    // 옵션 스위치 상태 동기화
-    doorCloseCheckbox.addEventListener('change', () => {
-        widgetDoorStatus.textContent = doorCloseCheckbox.checked ? "YES" : "NO";
-        calculateRealtimePreview();
+    // 문열림 / 문닫힘 옵션 버튼 클릭 토글
+    btnDoorClose.addEventListener('click', () => {
+        if (elevatorState.isMoving) return;
+        btnDoorClose.classList.add('active-util');
+        btnDoorOpen.classList.remove('active-util');
+    });
+    btnDoorOpen.addEventListener('click', () => {
+        if (elevatorState.isMoving) return;
+        btnDoorOpen.classList.add('active-util');
+        btnDoorClose.classList.remove('active-util');
     });
 
-    // 시작 지점 스위치 연동
-    currentFloorSelect.addEventListener('change', () => {
-        systemState.currentFloor = parseInt(currentFloorSelect.value, 10);
-        screenFloor.textContent = String(systemState.currentFloor).padStart(2, '0');
-        calculateRealtimePreview();
-    });
-
-    // 초단위 정밀 타임 프리뷰 계산 시스템
-    function calculateRealtimePreview() {
-        if (systemState.targetQueue.length === 0) {
-            widgetNextFloor.textContent = "없음";
-            screenNextMsg.textContent = "정차 예정층: 없음";
-            widgetTime.textContent = "00.00초";
-            screenTimerMsg.textContent = "00.00초 뒤 도착";
+    // 가동 시작
+    systemStartTrigger.addEventListener('click', () => {
+        if (elevatorState.isMoving) return;
+        if (elevatorState.selectedQueue.length === 0) {
+            alert("패널에서 내리실 층수 버튼을 먼저 눌러주세요!");
             return;
         }
 
-        const sortedFloors = [...systemState.targetQueue].sort((a, b) => a - b);
-        const textFormatted = sortedFloors.map(f => `${f}F`).join(', ');
-        widgetNextFloor.textContent = textFormatted;
-        screenNextMsg.textContent = `정차 예정층: ${textFormatted}`;
+        elevatorState.isMoving = true;
+        systemStartTrigger.disabled = true;
 
-        let virtualStart = parseInt(currentFloorSelect.value, 10);
-        let cumulativeSeconds = 0;
-
-        // 가까운 위치 순서대로 모션패스 정렬 최적화 순회
-        const sortedPath = [...systemState.targetQueue].sort((a, b) => Math.abs(a - virtualStart) - Math.abs(b - virtualStart));
-
-        sortedPath.forEach(destination => {
-            cumulativeSeconds += Math.abs(CRITICAL_TIME_MAP[destination] - CRITICAL_TIME_MAP[virtualStart]);
-            
-            // 문닫힘 체크 해제(NO) 선택 시 정차 1회당 8.60초의 수동개폐 딜레이 패널티 누적 가산
-            if (!doorCloseCheckbox.checked) {
-                cumulativeSeconds += 8.60; 
-            }
-            virtualStart = destination;
-        });
-
-        widgetTime.textContent = `${cumulativeSeconds.toFixed(2)}초`;
-        screenTimerMsg.textContent = `${cumulativeSeconds.toFixed(2)}초 뒤 도착`;
-    }
-
-    // 클리어 보드 초기화
-    ctaResetBtn.addEventListener('click', () => {
-        if (systemState.isDriving) return;
-        systemState.targetQueue = [];
-        floorChips.forEach(c => c.classList.remove('active-target'));
-        screenArrow.textContent = "─";
-        hwBtnUp.classList.remove('glowing');
-        hwBtnDown.classList.remove('glowing');
-        calculateRealtimePreview();
+        // 가장 가까운 층부터 방문하도록 정렬
+        elevatorState.selectedQueue.sort((a, b) => Math.abs(a - elevatorState.currentFloor) - Math.abs(b - elevatorState.currentFloor));
+        executeNextFlight();
     });
 
-    // 런타임 가동 스위치
-    ctaStartBtn.addEventListener('click', () => {
-        if (systemState.isDriving) return;
+    // 순차 주행 엔진
+    function executeNextFlight() {
+        if (elevatorState.selectedQueue.length === 0) {
+            elevatorState.isMoving = false;
+            systemStartTrigger.disabled = false;
+            panelArrow.textContent = "─";
+            liveStatusMsg.textContent = "대기중";
+            return;
+        }
+
+        const nextTarget = elevatorState.selectedQueue[0];
+        const startFloor = elevatorState.currentFloor;
+
+        if (startFloor === nextTarget) {
+            elevatorState.selectedQueue.shift();
+            const btn = document.querySelector(`.elevator-inside-btn[data-floor="${nextTarget}"]`);
+            if (btn) btn.classList.remove('button-pressed');
+            executeNextFlight();
+            return;
+        }
+
+        const isUp = nextTarget > startFloor;
+        panelArrow.textContent = isUp ? "↑" : "↓";
+        liveStatusMsg.textContent = isUp ? "상승중" : "하강중";
+
+        // 소요 시간 계산
+        let segmentDuration = Math.abs(CRITICAL_TIME_MAP[nextTarget] - CRITICAL_TIME_MAP[startFloor]);
         
-        systemState.currentFloor = parseInt(currentFloorSelect.value, 10);
-        if (systemState.targetQueue.length === 0) {
-            alert("이동할 정차 예정층을 마우스로 선택한 후에 버튼을 눌러주세요!");
-            return;
+        // 문닫힘 비활성화 시 8.6초 페널티 추가
+        if (!btnDoorClose.classList.contains('active-util')) {
+            segmentDuration += 8.60;
         }
 
-        systemState.isDriving = true;
-        toggleControlsLock(true);
+        let remainingTime = segmentDuration;
+        liveTimerMsg.textContent = `${remainingTime.toFixed(2)}초`;
 
-        systemState.targetQueue.sort((a, b) => Math.abs(a - systemState.currentFloor) - Math.abs(b - systemState.currentFloor));
-        startNextFlightSequence();
-    });
+        const fps = 30; 
+        const tickMs = 1000 / fps;
+        
+        const startPos = FLOOR_POSITION_MAP[startFloor];
+        const endPos = FLOOR_POSITION_MAP[nextTarget];
+        const totalDistance = endPos - startPos;
+        
+        let elapsedFrames = 0;
+        const totalFrames = (segmentDuration * 1000) / tickMs;
 
-    // 물리 주행 모터 구동 모듈
-    function startNextFlightSequence() {
-        if (systemState.targetQueue.length === 0) {
-            systemState.isDriving = false;
-            toggleControlsLock(false);
-            screenArrow.textContent = "─";
-            hwBtnUp.classList.remove('glowing');
-            hwBtnDown.classList.remove('glowing');
-            calculateRealtimePreview();
-            return;
-        }
+        elevatorState.timerInterval = setInterval(() => {
+            elapsedFrames++;
+            remainingTime -= (tickMs / 1000);
+            if (remainingTime < 0) remainingTime = 0;
 
-        const targetFloor = systemState.targetQueue[0];
-        const originFloor = systemState.currentFloor;
+            liveTimerMsg.textContent = `${remainingTime.toFixed(2)}초`;
 
-        if (originFloor === targetFloor) {
-            systemState.targetQueue.shift();
-            const doneChip = document.querySelector(`.floor-chip[data-floor="${targetFloor}"]`);
-            if (doneChip) doneChip.classList.remove('active-target');
-            startNextFlightSequence();
-            return;
-        }
+            // 비율에 맞게 실제 위치(px) 이동
+            const progressRatio = Math.min(elapsedFrames / totalFrames, 1);
+            const currentPositionPx = startPos + (totalDistance * progressRatio);
+            elevatorCar.style.bottom = `${currentPositionPx}px`;
 
-        const goingUp = targetFloor > originFloor;
-        screenArrow.textContent = goingUp ? "↑" : "↓";
-        if (goingUp) {
-            hwBtnUp.classList.add('glowing');
-            hwBtnDown.classList.remove('glowing');
-        } else {
-            hwBtnDown.classList.add('glowing');
-            hwBtnUp.classList.remove('glowing');
-        }
+            // 이동 방향에 맞춰 화면 층수 실시간 변화
+            const currentEstimatedFloor = Math.round(startFloor + ((nextTarget - startFloor) * progressRatio));
+            panelFloor.textContent = currentEstimatedFloor;
+            carDisplay.textContent = String(currentEstimatedFloor).padStart(2, '0');
 
-        let timeTicker = Math.abs(CRITICAL_TIME_MAP[targetFloor] - CRITICAL_TIME_MAP[originFloor]);
-        const totalSegmentDuration = timeTicker;
+            if (progressRatio >= 1) {
+                clearInterval(elevatorState.timerInterval);
 
-        screenTimerMsg.textContent = `${timeTicker.toFixed(2)}초 뒤 도착`;
-        widgetTime.textContent = `${timeTicker.toFixed(2)}초`;
+                elevatorState.currentFloor = nextTarget;
+                panelFloor.textContent = nextTarget;
+                carDisplay.textContent = String(nextTarget).padStart(2, '0');
+                panelArrow.textContent = "─";
+                liveTimerMsg.textContent = "0.00초";
+                liveStatusMsg.textContent = "정차 (문열림)";
 
-        const tickRate = 40;
-        systemState.timerClock = setInterval(() => {
-            timeTicker -= (tickRate / 1000);
+                const arrivedBtn = document.querySelector(`.elevator-inside-btn[data-floor="${nextTarget}"]`);
+                if (arrivedBtn) arrivedBtn.classList.remove('button-pressed');
 
-            if (timeTicker <= 0) {
-                clearInterval(systemState.timerClock);
-                clearInterval(systemState.floorClock);
+                elevatorState.selectedQueue.shift();
 
-                systemState.currentFloor = targetFloor;
-                screenFloor.textContent = String(targetFloor).padStart(2, '0');
-                currentFloorSelect.value = targetFloor;
-                screenArrow.textContent = "─";
-                
-                screenTimerMsg.textContent = "0.00초 뒤 도착";
-                widgetTime.textContent = "0.00초";
-
-                const finishedChip = document.querySelector(`.floor-chip[data-floor="${targetFloor}"]`);
-                if (finishedChip) finishedChip.classList.remove('active-target');
-
-                systemState.targetQueue.shift();
-
-                // 문닫힘 여부에 따른 정차 연출 딜레이 타임 스위칭 지연초 설정
-                const stopDelayTime = doorCloseCheckbox.checked ? 1500 : 3500;
+                const doorKeepOpenTime = btnDoorClose.classList.contains('active-util') ? 1200 : 3200;
                 setTimeout(() => {
-                    startNextFlightSequence();
-                }, stopDelayTime);
-                return;
+                    executeNextFlight();
+                }, doorKeepOpenTime);
             }
-
-            screenTimerMsg.textContent = `${timeTicker.toFixed(2)}초 뒤 도착`;
-            widgetTime.textContent = `${timeTicker.toFixed(2)}초`;
-        }, tickRate);
-
-        const stepDistance = Math.abs(targetFloor - originFloor);
-        const msPerFloorProgress = (totalSegmentDuration / stepDistance) * 1000;
-
-        systemState.floorClock = setInterval(() => {
-            if (systemState.currentFloor !== targetFloor) {
-                systemState.currentFloor += goingUp ? 1 : -1;
-                screenFloor.textContent = String(systemState.currentFloor).padStart(2, '0');
-                currentFloorSelect.value = systemState.currentFloor;
-            } else {
-                clearInterval(systemState.floorClock);
-            }
-        }, msPerFloorProgress);
+        }, tickMs);
     }
-
-    function toggleControlsLock(lock) {
-        currentFloorSelect.disabled = lock;
-        myFloorSelect.disabled = lock;
-        doorCloseCheckbox.disabled = lock;
-        ctaStartBtn.disabled = lock;
-        ctaStartBtn.style.opacity = lock ? "0.4" : "1";
-    }
-
-    // 초기 상태 셋 부팅
-    screenFloor.textContent = String(systemState.currentFloor).padStart(2, '0');
-    screenArrow.textContent = "─";
-    widgetDoorStatus.textContent = doorCloseCheckbox.checked ? "YES" : "NO";
-    calculateRealtimePreview();
 });
