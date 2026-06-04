@@ -7,46 +7,81 @@
 </head>
 <body>
 
-<div class="container">
+<div class="wrapper">
 
-  <div class="left-panel">
-    <h2>목표 층 선택</h2>
-    <div id="floorButtons" class="button-grid"></div>
+  <!-- 왼쪽 입력 화면 -->
+  <section class="control-section">
 
-    <h2>정차 예정층 선택</h2>
-    <div id="stopButtons" class="button-grid"></div>
+    <div class="select-row">
+      <label>
+        현재 엘리베이터 층
+        <select id="currentFloor">
+          <option value="1">1층</option>
+          <option value="2">2층</option>
+          <option value="3">3층</option>
+          <option value="4" selected>4층</option>
+          <option value="5">5층</option>
+          <option value="6">6층</option>
+          <option value="7">7층</option>
+          <option value="8">8층</option>
+        </select>
+      </label>
 
-    <label class="door-close-box">
-      <input type="checkbox" id="doorClose">
-      문닫힘 버튼 바로 누름
-    </label>
-
-    <div class="info-box">
-      <p>예상 도착시간</p>
-      <strong id="timeText">대기 중</strong>
+      <label>
+        내가 있는 층
+        <select id="targetFloor">
+          <option value="1">1층</option>
+          <option value="2">2층</option>
+          <option value="3">3층</option>
+          <option value="4">4층</option>
+          <option value="5">5층</option>
+          <option value="6">6층</option>
+          <option value="7">7층</option>
+          <option value="8" selected>8층</option>
+        </select>
+      </label>
     </div>
 
-    <div class="info-box">
-      <p>정차 예정층</p>
-      <strong id="stopText">없음</strong>
-    </div>
-  </div>
+    <div class="stop-card">
+      <h3>정차 예정층 다중 선택</h3>
+      <div id="stopButtons" class="floor-grid"></div>
 
-  <div class="elevator-panel">
-    <div class="screw top"></div>
-
-    <div class="screen">
-      <div id="direction">─</div>
-      <div id="floor">01</div>
-      <div id="arrival">대기 중</div>
-      <div id="stopInfo">정차 예정층: 없음</div>
+      <div class="action-row">
+        <button id="callBtn" class="call-main">엘리베이터 호출</button>
+        <button id="resetBtn" class="reset-btn">선택 초기화</button>
+      </div>
     </div>
 
-    <button id="upBtn" class="call-btn">▲</button>
-    <button id="downBtn" class="call-btn">▼</button>
+  </section>
 
-    <div class="screw bottom"></div>
-  </div>
+  <!-- 오른쪽 엘리베이터 화면 -->
+  <section class="elevator-section">
+
+    <div class="elevator-panel">
+
+      <div class="screw top"></div>
+
+      <div class="screen">
+        <div id="direction" class="direction">↑</div>
+        <div id="floorDisplay" class="floor-display">04</div>
+
+        <div id="arrivalTime" class="arrival-time">
+          17.57초 뒤<br>도착
+        </div>
+
+        <div id="stopInfo" class="stop-info">
+          예정 정차층: 없음
+        </div>
+      </div>
+
+      <button id="upBtn" class="elevator-btn">▲</button>
+      <button id="downBtn" class="elevator-btn">▼</button>
+
+      <div class="screw bottom"></div>
+
+    </div>
+
+  </section>
 
 </div>
 
