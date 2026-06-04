@@ -1,121 +1,100 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>엘리베이터 도착 예정시간 프로토타입</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+.preview-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:#eef1f5;
+}
 
-<main class="app">
+.elevator-panel{
+  position:relative;
+  width:190px;
+  height:650px;
+  padding:45px 20px;
+  border-radius:55px;
+  background:linear-gradient(145deg,#d9d9d9,#a9a9a9);
+  box-shadow:
+    inset 4px 4px 8px rgba(255,255,255,.8),
+    inset -6px -6px 12px rgba(0,0,0,.25),
+    0 30px 60px rgba(0,0,0,.25);
+}
 
-  <!-- 왼쪽 영역 -->
-  <section class="control-card">
+.screen{
+  width:145px;
+  height:310px;
+  margin:0 auto 80px;
+  border-radius:8px;
+  background:linear-gradient(#050505,#111);
+  border:3px solid #333;
+  box-shadow:
+    inset 0 0 25px #000,
+    0 0 8px rgba(0,0,0,.6);
+  color:#ff2525;
+  text-align:center;
+  text-shadow:0 0 14px red;
+}
 
-    <div class="title-area">
-      <span class="badge">PROTOTYPE</span>
-      <h1>예상 정차층 입력</h1>
-      <p>
-        정차 예정층과 문닫힘 버튼 여부를 반영하여
-        도착 시간을 계산합니다.
-      </p>
-    </div>
+.direction{
+  padding-top:30px;
+  font-size:42px;
+  font-weight:900;
+}
 
-    <div class="input-grid">
+.floor-display{
+  font-family:"Courier New",monospace;
+  font-size:78px;
+  font-weight:900;
+  line-height:1;
+}
 
-      <label>
-        현재 엘리베이터 층
-        <select id="currentFloor"></select>
-      </label>
+.eta-display{
+  margin-top:22px;
+  padding:0 8px;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.6;
+  white-space:pre-line;
+}
 
-      <label>
-        내가 있는 층
-        <select id="myFloor"></select>
-      </label>
+.call-btn{
+  display:block;
+  width:88px;
+  height:58px;
+  margin:18px auto;
+  border-radius:15px;
+  border:2px solid #aaa;
+  background:linear-gradient(#ffffff,#cfcfcf);
+  color:#ff7a1a;
+  font-size:28px;
+  font-weight:900;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,.9),
+    inset -3px -3px 6px rgba(0,0,0,.2),
+    0 6px 10px rgba(0,0,0,.3);
+  cursor:pointer;
+}
 
-    </div>
+.call-btn:active,
+.call-btn.pressed{
+  transform:translateY(3px);
+  box-shadow:
+    inset 3px 3px 8px rgba(0,0,0,.35);
+}
 
-    <div class="stop-box">
+.screw{
+  position:absolute;
+  left:50%;
+  width:10px;
+  height:10px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,#fff,#777);
+}
 
-      <div class="section-title">
-        정차 예정층 선택
-      </div>
+.screw.top{
+  top:20px;
+}
 
-      <div id="stopFloors" class="floor-buttons"></div>
-
-    </div>
-
-    <label class="close-row">
-      <input type="checkbox" id="doorClose">
-      <span>문닫힘 버튼을 바로 누름</span>
-    </label>
-
-    <div class="result-box">
-
-      <div>
-        <span>예상 정차층</span>
-        <strong id="stopResult">없음</strong>
-      </div>
-
-      <div>
-        <span>예상 도착시간</span>
-        <strong id="timeResult">대기 중</strong>
-      </div>
-
-    </div>
-
-    <button class="reset-btn" id="resetBtn">
-      초기화
-    </button>
-
-  </section>
-
-  <!-- 오른쪽 영역 -->
-  <section class="preview-card">
-
-    <div class="elevator-panel">
-
-      <div class="screw top"></div>
-
-      <div class="screen">
-
-        <div id="directionIcon" class="direction">
-          ▲
-        </div>
-
-        <div id="floorDisplay" class="floor-display">
-          1
-        </div>
-
-        <div id="etaDisplay" class="eta-display">
-          대기 중
-        </div>
-
-      </div>
-
-      <button class="call-btn" id="upBtn">
-        ▲
-      </button>
-
-      <button class="call-btn" id="downBtn">
-        ▼
-      </button>
-
-      <div class="screw bottom"></div>
-
-    </div>
-
-    <p class="caption">
-      버튼을 누르면 오른쪽 화면의 숫자가 실제
-      엘리베이터처럼 이동합니다.
-    </p>
-
-  </section>
-
-</main>
-
-<script src="script.js"></script>
-
-</body>
-</html>
+.screw.bottom{
+  bottom:20px;
+}
