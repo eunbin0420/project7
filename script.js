@@ -1,128 +1,114 @@
-// 실측 데이터 명세 구조
-const TIME_DATA_NORMAL = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
-const TIME_DATA_CLOSED = { 1: 0.00, 2: 4.50, 3: 7.20,  4: 10.10, 5: 13.30, 6: 16.00, 7: 19.10, 8: 22.00 }; 
+// 제공해주신 오리지널 물리 이동시간 데이터 테이블 매핑
+const TIME_DATA = {
+    1: 0.00,
+    2: 9.02,
+    3: 12.01,
+    4: 16.31,
+    5: 19.88,
+    6: 22.27,
+    7: 25.84,
+    8: 29.25
+};
 
 let coreState = {
-    currentFloor: 1,
+    currentFloor: 1,      // 현재 엘리베이터의 실시간 위치 층수
     isMoving: false,
     timerEngine: null,
     moveEngine: null
 };
 
-// DOM 요소 맵바인딩
+// DOM 바인딩
 const uiArrow = document.getElementById('display-arrow');
 const uiNumber = document.getElementById('display-number');
 const uiTimer = document.getElementById('display-timer');
-const uiStopFloor = document.getElementById('display-stop-floor'); // 하드웨어 화면용 정차층 레이어
+const uiStopFloor = document.getElementById('display-stop-floor');
 const btnUp = document.getElementById('btn-up');
 const btnDown = document.getElementById('btn-down');
-
 const floorPicker = document.getElementById('floor-picker');
-const targetPicker = document.getElementById('target-picker');
-const closeBtnCheckbox = document.getElementById('close-button-clicked');
 
-const statTargetFloor = document.getElementById('stat-target-floor');
-const statRemainingTime = document.getElementById('stat-remaining-time');
-const statMessage = document.getElementById('stat-message');
-
-function syncDisplay() {
-    uiNumber.textContent = String(coreState.currentFloor).padStart(2, '0');
+function updateFloorDisplay(floor) {
+    uiNumber.textContent = String(floor).padStart(2, '0');
 }
 
-function triggerElevator(clickedDir) {
+function startElevatorSimulation(direction) {
     if (coreState.isMoving) return;
 
-    const myPosition = parseInt(floorPicker.value);     
-    const projectedStop = parseInt(targetPicker.value);  
+    // 호출 버튼을 누른 탑승객의 타겟 층수 (예상 정차층)
+    const targetFloor = parseInt(floorPicker.value);
+    const startFloor = coreState.currentFloor;
 
-    coreState.currentFloor = myPosition;
-    syncDisplay();
-
-    if (myPosition === projectedStop) {
-        statMessage.textContent = "출발지와 정차층이 같습니다.";
-        uiTimer.textContent = "정차 완료";
-        uiStopFloor.textContent = ""; // 멈춘 상태이므로 화면에 미표시
+    if (startFloor === targetFloor) {
+        uiTimer.textContent = "0.00초 뒤\n뒤 도착";
+        uiStopFloor.textContent = "";
         return;
     }
 
     coreState.isMoving = true;
-    
-    // 주행 시작 시 대시보드와 LED 패널에 예정 정차층 동시에 등장
-    statTargetFloor.textContent = `${projectedStop}층`;
-    uiStopFloor.textContent = `${projectedStop}F`; // 이미지처럼 깔끔하게 '5F' 형태로 출력
-    uiStopFloor.style.opacity = "1"; // 선명하게 활성화
-    statMessage.textContent = "목적지 이동 중";
 
-    const targetHardwareBtn = clickedDir === 'up' ? btnUp : btnDown;
-    targetHardwareBtn.classList.add('active');
+    // 활성화된 방향 화살표 및 버튼 불빛 온
+    const activeButton = direction === 'up' ? btnUp : btnDown;
+    activeButton.classList.add('active');
+    uiArrow.textContent = targetFloor > startFloor ? '↑' : '↓';
 
-    const activeTimeTable = closeBtnCheckbox.checked ? TIME_DATA_CLOSED : TIME_DATA_NORMAL;
-    
-    const startSec = activeTimeTable[myPosition];
-    const endSec = activeTimeTable[projectedStop];
-    let timeDebt = Math.abs(endSec - startSec);
-    const initialDuration = timeDebt;
+    // 실제 매핑 테이블 간의 소요 시간 공식 계산 (실제 데이터 반영)
+    const startSeconds = TIME_DATA[startFloor];
+    const targetSeconds = TIME_DATA[targetFloor];
+    let remainingTime = Math.abs(targetSeconds - startSeconds);
+    const totalDuration = remainingTime;
 
-    const directionSign = projectedStop > myPosition ? '↑' : '↓';
-    uiArrow.textContent = directionSign;
+    // 주행 시작 시: 도착예정 시간과 예정 정차층을 아래에 동시에 표시
+    uiTimer.innerHTML = `${remainingTime.toFixed(2)}초 뒤<br>뒤 도착`;
+    uiStopFloor.textContent = `${targetFloor}층 정차 예정`;
 
-    const startFloor = myPosition;
-    const endFloor = projectedStop;
-
-    // 1. 소수점 실시간 카운트다운 타이머 엔진 루프
-    const pulse = 50;
+    // 1. 실제 시간 속도와 100% 동기화된 카운트다운 타이머 엔진 (50ms 마다 정밀 갱신)
+    const intervalTime = 50;
     coreState.timerEngine = setInterval(() => {
-        timeDebt -= (pulse / 1000);
+        remainingTime -= (intervalTime / 1000);
 
-        if (timeDebt <= 0) {
+        if (remainingTime <= 0) {
             clearInterval(coreState.timerEngine);
             clearInterval(coreState.moveEngine);
 
-            // 최종 목적 정사층 안착
-            coreState.currentFloor = endFloor;
-            syncDisplay();
-            
+            // 해당 예정 층에 완전히 멈춘 상태 정의
+            coreState.currentFloor = targetFloor;
+            updateFloorDisplay(targetFloor);
             uiArrow.textContent = "─";
-            uiTimer.textContent = "도착 완료";
             
-            // [핵심 요구사항] 예정 층에 멈추면 해당 예정 정차층 글씨가 완전히 소멸되어 사라짐
+            // [조건 변경 반영] 도착 예정 시간은 완료 상태로 계속 유지
+            uiTimer.innerHTML = "0.00초 뒤<br>뒤 도착";
+            
+            // [조건 변경 반영] 예정층에 멈췄으므로 정차 예정층 텍스트만 깨끗하게 소멸
             uiStopFloor.textContent = ""; 
-            uiStopFloor.style.opacity = "0"; 
-            
-            statRemainingTime.textContent = "0.00초";
-            statMessage.textContent = "정차 완료 (문 열림)";
 
+            // 2.5초 후 초기 대기 상태로 리셋 처리
             setTimeout(() => {
-                uiTimer.textContent = "";
-                statTargetFloor.textContent = "-";
-                statMessage.textContent = "대기 중";
-                targetHardwareBtn.classList.remove('active');
+                activeButton.classList.remove('active');
                 coreState.isMoving = false;
             }, 2500);
             return;
         }
 
-        // 실시간 정보 업데이트 데이터 사출
-        statRemainingTime.textContent = `${timeDebt.toFixed(2)}초`;
-        uiTimer.textContent = `${timeDebt.toFixed(2)}초 후 도착`;
-    }, pulse);
+        // 카운트다운 시간 상시 노출 유지
+        uiTimer.innerHTML = `${remainingTime.toFixed(2)}초 뒤<br>뒤 도착`;
+    }, intervalTime);
 
-    // 2. 실시간 물리 층수 표시 전환 루프
-    const floorDistance = Math.abs(endFloor - startFloor);
-    const durationPerFloor = (initialDuration / floorDistance) * 1000;
+    // 2. 실제 시간에 맞춰 실시간으로 변하는 물리 층수 변경 엔진
+    const totalFloorDistance = Math.abs(targetFloor - startFloor);
+    const timePerFloor = (totalDuration / totalFloorDistance) * 1000; // 한 층을 지나갈 때 걸리는 정확한 밀리초 계산
 
     coreState.moveEngine = setInterval(() => {
-        if (coreState.currentFloor !== endFloor) {
-            coreState.currentFloor += (endFloor > startFloor) ? 1 : -1;
-            syncDisplay();
+        if (coreState.currentFloor !== targetFloor) {
+            coreState.currentFloor += (targetFloor > startFloor) ? 1 : -1;
+            updateFloorDisplay(coreState.currentFloor);
         } else {
             clearInterval(coreState.moveEngine);
         }
-    }, durationPerFloor);
+    }, timePerFloor);
 }
 
-btnUp.addEventListener('click', () => triggerElevator('up'));
-btnDown.addEventListener('click', () => triggerElevator('down'));
+// 이벤트 리스너 연결
+btnUp.addEventListener('click', () => startElevatorSimulation('up'));
+btnDown.addEventListener('click', () => startElevatorSimulation('down'));
 
-// 초기 화면 렌더링 세팅
-syncDisplay();
+// 초기 1층 기본 세팅 초기화
+updateFloorDisplay(coreState.currentFloor);
