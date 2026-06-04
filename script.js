@@ -1,4 +1,4 @@
-// 실측 데이터셋 매핑
+// 실측 데이터 명세 구조
 const TIME_DATA_NORMAL = { 1: 0.00, 2: 9.02, 3: 12.01, 4: 16.31, 5: 19.88, 6: 22.27, 7: 25.84, 8: 29.25 };
 const TIME_DATA_CLOSED = { 1: 0.00, 2: 4.50, 3: 7.20,  4: 10.10, 5: 13.30, 6: 16.00, 7: 19.10, 8: 22.00 }; 
 
@@ -9,11 +9,11 @@ let coreState = {
     moveEngine: null
 };
 
-// DOM 요소 바인딩
+// DOM 요소 맵바인딩
 const uiArrow = document.getElementById('display-arrow');
 const uiNumber = document.getElementById('display-number');
 const uiTimer = document.getElementById('display-timer');
-const uiStopFloor = document.getElementById('display-stop-floor'); // 하드웨어 화면용 정차층 요소 추가
+const uiStopFloor = document.getElementById('display-stop-floor'); // 하드웨어 화면용 정차층 레이어
 const btnUp = document.getElementById('btn-up');
 const btnDown = document.getElementById('btn-down');
 
@@ -40,16 +40,17 @@ function triggerElevator(clickedDir) {
 
     if (myPosition === projectedStop) {
         statMessage.textContent = "출발지와 정차층이 같습니다.";
-        uiTimer.textContent = "정차 중";
-        uiStopFloor.textContent = "NEXT: --F";
+        uiTimer.textContent = "정차 완료";
+        uiStopFloor.textContent = ""; // 멈춘 상태이므로 화면에 미표시
         return;
     }
 
     coreState.isMoving = true;
     
-    // 데이터 보드와 검은색 하드웨어 스크린에 예정 정차층 동시 출력
-    statTargetFloor.textContent = `${projectedStop}층 (정차 예정)`;
-    uiStopFloor.textContent = `NEXT: ${String(projectedStop).padStart(2, '0')}F`;
+    // 주행 시작 시 대시보드와 LED 패널에 예정 정차층 동시에 등장
+    statTargetFloor.textContent = `${projectedStop}층`;
+    uiStopFloor.textContent = `${projectedStop}F`; // 이미지처럼 깔끔하게 '5F' 형태로 출력
+    uiStopFloor.style.opacity = "1"; // 선명하게 활성화
     statMessage.textContent = "목적지 이동 중";
 
     const targetHardwareBtn = clickedDir === 'up' ? btnUp : btnDown;
@@ -68,7 +69,7 @@ function triggerElevator(clickedDir) {
     const startFloor = myPosition;
     const endFloor = projectedStop;
 
-    // 1. 시간 카운트다운 루프
+    // 1. 소수점 실시간 카운트다운 타이머 엔진 루프
     const pulse = 50;
     coreState.timerEngine = setInterval(() => {
         timeDebt -= (pulse / 1000);
@@ -77,17 +78,22 @@ function triggerElevator(clickedDir) {
             clearInterval(coreState.timerEngine);
             clearInterval(coreState.moveEngine);
 
+            // 최종 목적 정사층 안착
             coreState.currentFloor = endFloor;
             syncDisplay();
+            
             uiArrow.textContent = "─";
             uiTimer.textContent = "도착 완료";
-            uiStopFloor.textContent = `ARRIVED: ${String(endFloor).padStart(2, '0')}F`;
+            
+            // [핵심 요구사항] 예정 층에 멈추면 해당 예정 정차층 글씨가 완전히 소멸되어 사라짐
+            uiStopFloor.textContent = ""; 
+            uiStopFloor.style.opacity = "0"; 
+            
             statRemainingTime.textContent = "0.00초";
             statMessage.textContent = "정차 완료 (문 열림)";
 
             setTimeout(() => {
                 uiTimer.textContent = "";
-                uiStopFloor.textContent = "NEXT: --F";
                 statTargetFloor.textContent = "-";
                 statMessage.textContent = "대기 중";
                 targetHardwareBtn.classList.remove('active');
@@ -96,11 +102,12 @@ function triggerElevator(clickedDir) {
             return;
         }
 
+        // 실시간 정보 업데이트 데이터 사출
         statRemainingTime.textContent = `${timeDebt.toFixed(2)}초`;
-        uiTimer.textContent = `${timeDebt.toFixed(2)}초 남음`;
+        uiTimer.textContent = `${timeDebt.toFixed(2)}초 후 도착`;
     }, pulse);
 
-    // 2. 층수 순차 무빙 이동 루프
+    // 2. 실시간 물리 층수 표시 전환 루프
     const floorDistance = Math.abs(endFloor - startFloor);
     const durationPerFloor = (initialDuration / floorDistance) * 1000;
 
@@ -117,4 +124,5 @@ function triggerElevator(clickedDir) {
 btnUp.addEventListener('click', () => triggerElevator('up'));
 btnDown.addEventListener('click', () => triggerElevator('down'));
 
+// 초기 화면 렌더링 세팅
 syncDisplay();
