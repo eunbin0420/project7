@@ -1,5 +1,5 @@
-let currentFloor = 1;
-let targetFloor = 1;
+let currentFloor = 4;
+let targetFloor = 8;
 let isMoving = false;
 
 const selectedStops = new Set();
@@ -15,23 +15,22 @@ const moveTimeFrom1 = {
   8: 29.25
 };
 
-const doorTimeFast = 8.60;
 const doorTimeNormal = 17.22;
 
-const floorButtons = document.getElementById("floorButtons");
+const currentFloorSelect = document.getElementById("currentFloor");
+const targetFloorSelect = document.getElementById("targetFloor");
 const stopButtons = document.getElementById("stopButtons");
-const doorClose = document.getElementById("doorClose");
 
-const direction = document.getElementById("direction");
-const floor = document.getElementById("floor");
-const arrival = document.getElementById("arrival");
-const stopInfo = document.getElementById("stopInfo");
-
-const timeText = document.getElementById("timeText");
-const stopText = document.getElementById("stopText");
+const callBtn = document.getElementById("callBtn");
+const resetBtn = document.getElementById("resetBtn");
 
 const upBtn = document.getElementById("upBtn");
 const downBtn = document.getElementById("downBtn");
+
+const direction = document.getElementById("direction");
+const floorDisplay = document.getElementById("floorDisplay");
+const arrivalTime = document.getElementById("arrivalTime");
+const stopInfo = document.getElementById("stopInfo");
 
 function padFloor(num) {
   return String(num).padStart(2, "0");
@@ -41,6 +40,15 @@ function getMoveTime(start, end) {
   return Math.abs(moveTimeFrom1[end] - moveTimeFrom1[start]);
 }
 
+function getValidStops() {
+  const min = Math.min(currentFloor, targetFloor);
+  const max = Math.max(currentFloor, targetFloor);
+
+  return [...selectedStops]
+    .filter(floor => floor > min && floor < max)
+    .sort((a, b) => currentFloor < targetFloor ? a - b : b - a);
+}
+
 function getStopText(stops) {
   return stops.length > 0
     ? stops.map(f => f + "층").join(", ")
@@ -48,14 +56,8 @@ function getStopText(stops) {
 }
 
 function calculateTime() {
-  const start = currentFloor;
-  const end = targetFloor;
-
-  const stops = [...selectedStops]
-    .filter(f => f > Math.min(start, end) && f < Math.max(start, end))
-    .sort((a, b) => start < end ? a - b : b - a);
-
-  const route = [start, ...stops, end];
+  const stops = getValidStops();
+  const route = [currentFloor, ...stops, targetFloor];
 
   let moveTime = 0;
 
@@ -63,8 +65,7 @@ function calculateTime() {
     moveTime += getMoveTime(route[i], route[i + 1]);
   }
 
-  const doorTime = doorClose.checked ? doorTimeFast : doorTimeNormal;
-  const totalTime = moveTime + doorTime + stops.length * doorTime;
+  const totalTime = moveTime + doorTimeNormal + stops.length * doorTimeNormal;
 
   return {
     stops,
@@ -75,9 +76,9 @@ function calculateTime() {
 
 function updateScreen() {
   const result = calculateTime();
-  const stopTextValue = getStopText(result.stops);
+  const stopText = getStopText(result.stops);
 
-  floor.innerText = padFloor(currentFloor);
+  floorDisplay.innerText = padFloor(currentFloor);
 
   if (currentFloor === targetFloor) {
     direction.innerText = "─";
@@ -85,58 +86,32 @@ function updateScreen() {
     direction.innerText = targetFloor > currentFloor ? "↑" : "↓";
   }
 
-  arrival.innerText =
-    result.totalTime.toFixed(2) + "초 뒤\n도착";
+  arrivalTime.innerHTML =
+    result.totalTime.toFixed(2) + "초 뒤<br>도착";
 
   stopInfo.innerText =
-    "정차 예정층: " + stopTextValue;
-
-  timeText.innerText =
-    result.totalTime.toFixed(2) + "초";
-
-  stopText.innerText = stopTextValue;
+    "예정 정차층: " + stopText;
 }
 
-function createButtons() {
+function createStopButtons() {
   for (let i = 1; i <= 8; i++) {
-    const floorBtn = document.createElement("button");
-    floorBtn.className = "floor-btn";
-    floorBtn.innerText = i + "층";
+    const btn = document.createElement("button");
+    btn.className = "floor-btn";
+    btn.innerText = i + "층";
 
-    if (i === 1) {
-      floorBtn.classList.add("active");
-    }
-
-    floorBtn.addEventListener("click", () => {
-      targetFloor = i;
-
-      document.querySelectorAll(".floor-btn").forEach(btn => {
-        btn.classList.remove("active");
-      });
-
-      floorBtn.classList.add("active");
-      updateScreen();
-    });
-
-    floorButtons.appendChild(floorBtn);
-
-    const stopBtn = document.createElement("button");
-    stopBtn.className = "stop-btn";
-    stopBtn.innerText = i + "층";
-
-    stopBtn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
       if (selectedStops.has(i)) {
         selectedStops.delete(i);
-        stopBtn.classList.remove("active");
+        btn.classList.remove("active");
       } else {
         selectedStops.add(i);
-        stopBtn.classList.add("active");
+        btn.classList.add("active");
       }
 
       updateScreen();
     });
 
-    stopButtons.appendChild(stopBtn);
+    stopButtons.appendChild(btn);
   }
 }
 
@@ -147,27 +122,22 @@ function moveElevator() {
 
   const result = calculateTime();
   const route = result.route;
-  const stopTextValue = getStopText(result.stops);
+  const stopText = getStopText(result.stops);
 
-  const movingButton =
-    targetFloor > currentFloor ? upBtn : downBtn;
-
-  movingButton.classList.add("pressed");
-
-  arrival.innerText =
-    result.totalTime.toFixed(2) + "초 뒤\n도착";
-
-  stopInfo.innerText =
-    "정차 예정층: " + stopTextValue;
+  const movingBtn = targetFloor > currentFloor ? upBtn : downBtn;
+  movingBtn.classList.add("active");
 
   let routeIndex = 0;
 
   function moveNext() {
     if (routeIndex >= route.length - 1) {
       isMoving = false;
-      movingButton.classList.remove("pressed");
-      arrival.innerText = "도착 완료";
-      stopInfo.innerText = "정차 예정층: " + stopTextValue;
+      movingBtn.classList.remove("active");
+
+      arrivalTime.innerHTML = "도착<br>완료";
+      stopInfo.innerText = "예정 정차층: " + stopText;
+
+      currentFloorSelect.value = currentFloor;
       updateScreen();
       return;
     }
@@ -179,15 +149,16 @@ function moveElevator() {
 
     const timer = setInterval(() => {
       currentFloor += step;
-      floor.innerText = padFloor(currentFloor);
+      floorDisplay.innerText = padFloor(currentFloor);
 
       if (currentFloor === nextFloor) {
         clearInterval(timer);
         routeIndex++;
 
         if (currentFloor !== targetFloor) {
-          arrival.innerText = currentFloor + "층 정차";
-          stopInfo.innerText = "정차 예정층: " + stopTextValue;
+          arrivalTime.innerHTML = currentFloor + "층<br>정차";
+          stopInfo.innerText = "예정 정차층: " + stopText;
+
           setTimeout(moveNext, 900);
         } else {
           setTimeout(moveNext, 500);
@@ -196,12 +167,35 @@ function moveElevator() {
     }, 700);
   }
 
+  updateScreen();
   moveNext();
 }
 
-doorClose.addEventListener("change", updateScreen);
+currentFloorSelect.addEventListener("change", () => {
+  if (isMoving) return;
+  currentFloor = Number(currentFloorSelect.value);
+  updateScreen();
+});
+
+targetFloorSelect.addEventListener("change", () => {
+  if (isMoving) return;
+  targetFloor = Number(targetFloorSelect.value);
+  updateScreen();
+});
+
+callBtn.addEventListener("click", moveElevator);
 upBtn.addEventListener("click", moveElevator);
 downBtn.addEventListener("click", moveElevator);
 
-createButtons();
+resetBtn.addEventListener("click", () => {
+  selectedStops.clear();
+
+  document.querySelectorAll(".floor-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  updateScreen();
+});
+
+createStopButtons();
 updateScreen();
