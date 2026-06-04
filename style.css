@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
 * {
     box-sizing: border-box;
@@ -7,266 +7,319 @@
 }
 
 body {
-    background-color: #0b0f19;
+    background-color: #f1f5f9;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #f8fafc;
+    color: #1e293b;
+    padding: 20px;
 }
 
-.elevator-simulator-container {
+.app-wrapper {
     display: flex;
-    gap: 40px;
-    padding: 30px;
-    background: #111827;
-    border-radius: 24px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
-    border: 1px solid #1e293b;
+    align-items: flex-start;
+    gap: 50px;
+    max-width: 1000px;
+    width: 100%;
+    justify-content: center;
 }
 
-/* 왼쪽 샤프트 뷰 */
-.elevator-shaft-view {
-    width: 320px;
+/* ---------------------------------------------------------------- */
+/* LEFT: 깔끔한 화이트 카드 입력 폼 스타일 */
+/* ---------------------------------------------------------------- */
+.input-card {
+    background-color: #ffffff;
+    border-radius: 24px;
+    padding: 35px;
+    width: 520px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.badge {
+    display: inline-block;
     background-color: #0f172a;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+}
+
+h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.description {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+/* 셀렉트 박스 배열 */
+.select-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.select-group {
+    flex: 1;
+}
+
+.select-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.select-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+    color: #334155;
+    background-color: #f8fafc;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 정차 예정층 영역 */
+.stop-floor-section {
+    background-color: #f8fafc;
     border-radius: 16px;
     padding: 20px;
-    border: 1px solid #334155;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    margin-bottom: 20px;
 }
 
-.shaft-header {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #38bdf8;
-    letter-spacing: 1px;
-    text-align: center;
+.stop-floor-section h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 14px;
 }
 
-.shaft-inside {
-    position: relative;
-    width: 100%;
-    height: 480px;
-    background-color: #020617;
-    border-radius: 12px;
-    border: 2px solid #1e293b;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.shaft-floor-line {
-    flex: 1;
-    border-bottom: 1px dashed rgba(51, 65, 85, 0.3);
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding-left: 15px;
-}
-
-.shaft-floor-line span {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #475569;
-}
-
-/* 실제 움직이는 엘리베이터 카 */
-.elevator-car {
-    position: absolute;
-    left: 90px;
-    bottom: 0px; 
-    width: 140px;
-    height: 60px; 
-    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
-    border: 2px solid #38bdf8;
-    border-radius: 6px;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 4px;
-    transition: bottom 0.1s linear;
-}
-
-.car-door-left, .car-door-right {
-    width: 35px;
-    height: 90%;
-    background-color: #475569;
-    border: 1px solid #64748b;
-    border-radius: 3px;
-}
-
-.car-display {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.8rem;
-    color: #ff5500;
-    font-weight: 900;
-    background-color: #000;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.status-ticker {
-    display: flex;
+.floor-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
-.ticker-box {
-    flex: 1;
-    background-color: #1e293b;
-    border: 1px solid #334155;
-    padding: 10px;
+.floor-btn {
+    padding: 12px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
-    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-.ticker-label {
+.floor-btn:hover {
+    background-color: #f1f5f9;
+}
+
+/* 정차층 선택되었을 때 활성화 스타일 (파란색 계열 테두리/텍스트) */
+.floor-btn.selected {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+/* 체크박스 영역 */
+.checkbox-container {
+    background-color: #fff7ed;
+    padding: 14px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkbox-container label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #c2410c;
+    cursor: pointer;
+}
+
+/* 하단 결과 블록 */
+.summary-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.summary-box {
+    flex: 1;
+    background-color: #0f172a;
+    border-radius: 14px;
+    padding: 15px;
+}
+
+.summary-label {
     display: block;
-    font-size: 0.65rem;
-    color: #64748b;
-    font-weight: 700;
-    margin-bottom: 4px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
 }
 
-.ticker-value {
-    font-size: 0.95rem;
+.summary-value {
+    font-size: 1.3rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: #ffffff;
 }
 
-/* 오른쪽 내부 패널 */
-.elevator-inside-panel {
-    background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-    width: 220px;
+.summary-value.value-red {
+    color: #ef4444;
+}
+
+#btn-simulate {
+    width: 100%;
+    padding: 14px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+#btn-simulate:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* RIGHT: 캡처본 완벽 구현 세로형 외부 LED 엘리베이터 패널 */
+/* ---------------------------------------------------------------- */
+.elevator-panel {
+    background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 60%, #94a3b8 100%);
+    width: 180px;
     border-radius: 28px;
-    padding: 30px 16px;
+    padding: 35px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
     box-shadow: 
-        0 20px 50px rgba(0, 0, 0, 0.4),
-        inset 2px 2px 5px rgba(255, 255, 255, 1),
-        inset -2px -2px 5px rgba(0, 0, 0, 0.2);
+        0 15px 40px rgba(0, 0, 0, 0.15),
+        inset 1px 1px 3px rgba(255, 255, 255, 0.8),
+        inset -1px -1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
     border: 1px solid #cbd5e1;
 }
 
-.panel-screw {
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle at 30% 30%, #fff, #64748b 80%);
-    border-radius: 50%;
+.screw {
+    width: 10px;
+    height: 2px;
+    background-color: #64748b;
     position: absolute;
 }
-.top-left-screw { top: 12px; left: 14px; }
-.top-right-screw { top: 12px; right: 14px; }
-.bottom-left-screw { bottom: 12px; left: 14px; }
-.bottom-right-screw { bottom: 12px; right: 14px; }
+.top-screw { top: 12px; left: calc(50% - 5px); }
+.bottom-screw { bottom: 12px; left: calc(50% - 5px); }
 
-.panel-led-indicator {
-    background-color: #050505;
+/* 실제 전광판 창 스크린 */
+.led-display-screen {
+    background-color: #080808;
     width: 100%;
-    height: 80px;
+    height: 220px;
     border-radius: 12px;
-    border: 2px solid #475569;
-    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.9);
+    padding: 15px 10px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 25px;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8);
+    margin-bottom: 30px;
 }
 
-.panel-arrow {
-    color: #ff2200;
-    font-size: 1.5rem;
-    font-weight: 900;
-    filter: drop-shadow(0 0 4px rgba(255, 34, 0, 0.8));
-}
-
-.panel-floor {
-    font-family: 'Orbitron', monospace;
-    color: #ff2200;
-    font-size: 2.5rem;
-    font-weight: 900;
-    filter: drop-shadow(0 0 8px rgba(255, 34, 0, 0.95));
-}
-
-.button-matrix-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px 20px;
-    margin-bottom: 25px;
-}
-
-.elevator-inside-btn {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
-    border: 2px solid #94a3b8;
-    font-size: 1.2rem;
+.arrow-indicator {
+    color: #ef4444;
+    font-size: 2rem;
     font-weight: 700;
-    color: #334155;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+}
+
+.floor-number {
+    font-family: 'Orbitron', monospace;
+    color: #ef4444;
+    font-size: 3.8rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8));
+}
+
+/* 캡처 화면 텍스트 전용 스타일 */
+.live-status-group {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#led-timer-text, #led-next-floor-text {
+    color: #ef4444;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+}
+
+/* 외부 승강기 화살표 기계식 조작 버튼 */
+.hardware-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 70px;
+}
+
+.arrow-btn {
+    width: 70px;
+    height: 55px;
+    background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
+    border: 1px solid #a4b5cb;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: #e28743;
     cursor: pointer;
-    box-shadow: 0 4px 0 #64748b, 0 5px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 0 #94a3b8, 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.1s ease;
     outline: none;
-}
-
-.elevator-inside-btn:hover {
-    background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 100%);
-}
-
-/* 버튼 눌렸을 때 들어오는 오렌지색 조명 효과 */
-.elevator-inside-btn.button-pressed {
-    background: linear-gradient(to bottom, #fff2eb 0%, #ffd0b3 100%);
-    border-color: #ff5500;
-    color: #ff5500;
-    box-shadow: 0 2px 0 #b33c00, 0 3px 8px rgba(255, 85, 0, 0.3);
-    transform: translateY(2px);
-}
-
-.panel-util-row {
     display: flex;
-    gap: 14px;
-    margin-bottom: 25px;
+    align-items: center;
+    justify-content: center;
 }
 
-.util-btn {
-    width: 64px;
-    height: 38px;
-    background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
-    border: 1px solid #94a3b8;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #475569;
-    cursor: pointer;
-    box-shadow: 0 2px 0 #64748b;
+/* 활성화(눌려진 상태) 조명 스위치 */
+.arrow-btn.active {
+    background: linear-gradient(to bottom, #fffae6 0%, #ffe0b3 100%);
+    border-color: #f97316;
+    color: #ea580c;
+    box-shadow: 0 1px 0 #c2410c, 0 2px 4px rgba(249, 115, 22, 0.2);
+    transform: translateY(3px);
 }
-
-.util-btn.active-util {
-    border-color: #ff5500;
-    color: #ff5500;
-    background: #fff2eb;
-}
-
-#system-start-trigger {
-    width: 100%;
-    background-color: #ff5500;
-    color: #ffffff;
-    border: none;
-    padding: 12px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
-}
-
-#system-start-trigger:hover { background-color: #ff6a1a; }
-#system-start-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
