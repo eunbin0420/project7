@@ -3,104 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프리미엄 하이브리드 엘리베이터 시스템</title>
+    <title>실시간 동기화 엘리베이터 시뮬레이터</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="split-container">
+    <div class="floor-selector-box">
+        <label for="floor-picker">SET MY FLOOR</label>
+        <select id="floor-picker">
+            <option value="1">1F</option>
+            <option value="2">2F</option>
+            <option value="3">3F</option>
+            <option value="4" selected>4F</option>
+            <option value="5">5F</option>
+            <option value="6">6F</option>
+            <option value="7">7F</option>
+            <option value="8">8F</option>
+        </select>
+    </div>
+
+    <div class="elevator-panel">
+        <div class="screw top"></div>
         
-        <div class="left-control-panel">
-            <div class="dashboard-card">
-                <h2>ELEVATOR CONTROL DASHBOARD</h2>
-                <hr class="dash-divider">
-                
-                <div class="input-group">
-                    <label for="floor-picker">내 현재 위치 (CURRENT FLOOR)</label>
-                    <select id="floor-picker">
-                        <option value="1">1F</option>
-                        <option value="2">2F</option>
-                        <option value="3">3F</option>
-                        <option value="4" selected>4F</option>
-                        <option value="5">5F</option>
-                        <option value="6">6F</option>
-                        <option value="7">7F</option>
-                        <option value="8">8F</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="target-picker">목적지 (예상 정차층 입력)</label>
-                    <select id="target-picker">
-                        <option value="1">1F</option>
-                        <option value="2">2F</option>
-                        <option value="3">3F</option>
-                        <option value="4">4F</option>
-                        <option value="5" selected>5F</option>
-                        <option value="6">6F</option>
-                        <option value="7">7F</option>
-                        <option value="8">8F</option>
-                    </select>
-                </div>
-
-                <div class="input-group close-btn-wrapper">
-                    <label class="switch-label">
-                        <input type="checkbox" id="close-button-clicked">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="switch-text">닫힘 버튼 바로 누름 (시간 단축 적용)</span>
-                </div>
-
-                <div class="status-display-box">
-                    <div class="status-title">운행 상태 모니터링</div>
-                    <div class="status-row">
-                        <span class="status-label">타겟 정차예정층:</span>
-                        <span id="stat-target-floor" class="status-value">-</span>
-                    </div>
-                    <div class="status-row">
-                        <span class="status-label">남은 주행시간:</span>
-                        <span id="stat-remaining-time" class="status-value highlight">0.00초</span>
-                    </div>
-                    <div class="status-row">
-                        <span class="status-label">현재 상태:</span>
-                        <span id="stat-message" class="status-msg">대기 중</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="right-hardware-panel">
+        <div class="black-screen">
+            <div class="led-arrow" id="display-arrow">─</div>
+            <div class="led-number" id="display-number">01</div>
             
-            <div class="elevator-panel">
-                <div class="screw top"></div>
-                
-                <div class="black-screen">
-                    <div class="led-arrow" id="display-arrow">─</div>
-                    <div class="led-number" id="display-number">01</div>
-                    
-                    <div class="led-timer" id="display-timer"></div>
-                    
-                    <div class="led-stop-floor" id="display-stop-floor"></div>
-                </div>
-
-                <div class="button-set">
-                    <button id="btn-up" class="elevator-physical-btn" aria-label="Up">
-                        <div class="btn-inner">
-                            <svg viewBox="0 0 100 100"><polygon points="50,25 85,75 15,75"/></svg>
-                        </div>
-                    </button>
-                    <button id="btn-down" class="elevator-physical-btn" aria-label="Down">
-                        <div class="btn-inner">
-                            <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,75"/></svg>
-                        </div>
-                    </button>
-                </div>
-
-                <div class="screw bottom"></div>
-            </div>
-
+            <div class="led-timer" id="display-timer">0.00초 뒤 뒤 도착</div>
+            
+            <div class="led-stop-floor" id="display-stop-floor"></div>
         </div>
 
+        <div class="button-set">
+            <button id="btn-up" class="elevator-physical-btn" aria-label="Up">
+                <div class="btn-inner">
+                    <svg viewBox="0 0 100 100"><polygon points="50,25 85,75 15,75"/></svg>
+                </div>
+            </button>
+            <button id="btn-down" class="elevator-physical-btn" aria-label="Down">
+                <div class="btn-inner">
+                    <svg viewBox="0 0 100 100"><polygon points="15,25 85,25 50,75"/></svg>
+                </div>
+            </button>
+        </div>
+
+        <div class="screw bottom"></div>
     </div>
 
     <script src="script.js"></script>
